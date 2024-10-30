@@ -1,0 +1,168 @@
+'  Grafo de DOSIFICACION DE ACEITES: Mantenimiento del grafo
+LD cierto
+//  Permitimos más transiciones el siguiente ciclo
+RSET AZA_GRAFOTRANSICION
+LDNOT AZA_GRAFODOSIFICACION
+ANDNOT AZA_GRAFOPAUSADOSIFICACION
+ANDNOT AZA_GRAFOESPERAFINPETICON
+ANDNOT AZA_GRAFOREPOSO
+SET AZA_GRAFOREPOSO
+'  Grafo de DOSIFICACION DE ACEITES: Transiciones
+LD AZA_GRAFOREPOSO
+ANDNOT AZA_GRAFOTRANSICION
+AND=S(302) ZA_ESTADO_INSTALACION &2
+AND I_CBPETDESCACEITE
+OUT TR0
+AND=(300) AZA_RecetaConAceite &1
+OUT TR1
+SET AZA_GRAFODOSIFICACION
+RSET AZA_GRAFOREPOSO
+SET AZA_GRAFOTRANSICION
+MOVL(498) &0 AZA_ValorContadorAceite
+//  Reseteamos el contador
+MOV(021) &0 V4_cbEdigitosvisorbajo
+MOVL(498) AZA_ConsignaAceite V4_cbEconsigna
+//  Grabamos la consigna
+MOVL(498) &0 AZA_Cantidaddosificada
+MOV(021) &1 AZA_EstadoAceite
+AND<>SL(308) V4_cbEconsigna &0
+MOV(021) &1 V4_cbEordendosificar
+LD TR1
+MOV(021) &1 AZA_EstadoAceite
+LD TR0
+ANDNOT AZA_GRAFOTRANSICION
+AND=(300) AZA_RecetaConAceite &0
+SET AZA_GRAFOESPERAFINPETICON
+//  Si no  hay aceite en la formula  pasamos directamente a confirmar
+RSET AZA_GRAFOREPOSO
+SET AZA_GRAFOTRANSICION
+LD AZA_GRAFODOSIFICACION
+ANDNOT AZA_GRAFOTRANSICION
+OUT TR0
+AND I_CBPETDESCACEITE
+AND AZA_FinDosificacion
+SET AZA_GRAFOESPERAFINPETICON
+RSET AZA_GRAFODOSIFICACION
+SET AZA_GRAFOTRANSICION
+MOV(021) &2 AZA_EstadoAceite
+LD TR0
+ANDNOT AZA_GRAFOTRANSICION
+ANDNOT I_CBPETDESCACEITE
+ANDNOT O_CBFINDESCACEITE
+SET AZA_GRAFOPAUSADOSIFICACION
+RSET AZA_GRAFODOSIFICACION
+SET AZA_GRAFOTRANSICION
+MOV(021) &0 V4_cbEordendosificar
+LD AZA_GRAFOPAUSADOSIFICACION
+ANDNOT AZA_GRAFOTRANSICION
+AND I_CBPETDESCACEITE
+SET AZA_GRAFODOSIFICACION
+RSET AZA_GRAFOPAUSADOSIFICACION
+SET AZA_GRAFOTRANSICION
+AND<>SL(308) V4_cbEconsigna &0
+AND<>S(307) AZA_EstadoAceite &2
+MOV(021) &1 V4_cbEordendosificar
+LD AZA_GRAFOESPERAFINPETICON
+ANDNOT AZA_GRAFOTRANSICION
+ANDNOT I_CBPETDESCACEITE
+AND O_CBFINDESCACEITE
+SET AZA_GRAFOREPOSO
+RSET AZA_GRAFOESPERAFINPETICON
+SET AZA_GRAFOTRANSICION
+MOV(021) &0 AZA_RecetaConAceite
+LD VIR_I_PGRESETACEITE
+RSET AZA_GRAFODOSIFICACION
+RSET AZA_GRAFOPAUSADOSIFICACION
+RSET AZA_GRAFOESPERAFINPETICON
+SET AZA_GRAFOREPOSO
+MOV(021) &0 AZA_RecetaConAceite
+'  Grafo de DOSIFICACION DE ACEITES: Estados
+LD AZA_GRAFOREPOSO
+//  En estado de reposo no puede haver ninguna orden activa
+OUT TR0
+MOV(021) &0 V4_cbEordendosificar
+AND=S(302) V4_cbSciclodosificacion &1
+MOV(021) &1 V4_cbEordenabortar
+LD TR0
+AND=S(302) V4_cbSciclodosificacion &0
+MOV(021) &0 V4_cbEordenabortar
+LD TR0
+MOV(021) &0 AZA_EstadoAceite
+RSET AZA_HaEntradoCicloV4
+LD AZA_GRAFODOSIFICACION
+OUT TR0
+AND=S(302) &1 V4_cbSfinaldosificacion
+MOV(021) &0 V4_cbEordendosificar
+MOVL(498) V4_cbSpesodosificado AZA_Cantidaddosificada
+LD TR0
+AND<>S(307) V4_cbSfinaldosificacion &1
+AND<>SL(308) V4_cbEconsigna &0
+MOVL(498) V4_cbSpesoneto AZA_Cantidaddosificada
+LD TR0
+AND=S(302) &0 V4_cbSciclodosificacion
+TIM 2201 #10
+LD TR0
+AND TIM_AZA_FINDOSIFICACIONACEITES
+OUT AZA_FinDosificacion
+LD TR0
+AND=S(302) &1 V4_cbSciclodosificacion
+SET AZA_HaEntradoCicloV4
+LD TR0
+AND AZA_HaEntradoCicloV4
+AND=S(302) &0 V4_cbSciclodosificacion
+MOV(021) &0 V4_cbEordendosificar
+MOV(021) &2 AZA_EstadoAceite
+LD AZA_GRAFOPAUSADOSIFICACION
+AND<>S(307) V4_cbSfinaldosificacion &1
+AND<>SL(308) V4_cbEconsigna &0
+MOVL(498) V4_cbSpesoneto AZA_Cantidaddosificada
+LD AZA_GRAFOESPERAFINPETICON
+//  Mientras esperamos nos retire la señal de petición actuamos la senyal de fin de dosificación
+OUT VIR_O_CBFINDESCACEITE_1
+'  EJECUCIÓN INCONDICIONAL: Cargamos valores de parametros fijos para llamada de CONTROL BASCULA
+LD cierto
+MOV(021) &2 V4_cbEdatavalidsigno
+'  Si no estamos en Automático y nos piden aceite confirmamos fin de dosificación.
+LD=S(302) ZA_ESTADO_INSTALACION &1
+AND I_CBPETDESCACEITE
+OUT VIR_O_CBFINDESCACEITE_2
+'  Controles manuales del aceite
+LD VIR_I_PGZEROACEITE
+AND=S(302) ZA_ESTADO_INSTALACION &1
+MOVL(498) &0 AZA_ValorContadorAceite
+MOV(021) &0 V4_cbEdigitosvisorbajo
+LD VIR_I_PGCONFIRMARERRORACEITE
+MOV(021) &1 V4_cbEconfirmarerror
+LDNOT VIR_I_PGCONFIRMARERRORACEITE
+MOV(021) &0 V4_cbEconfirmarerror
+'  Contaje de impulsos de líquidos
+@LD I_CVACEITEOLIVA
+ANDNOT AZA_Ultimo_Dosi_Girasol_Oliva
+@LD I_CVACEITEGIRASOL
+AND AZA_Ultimo_Dosi_Girasol_Oliva
+ORLD
+OUT TR0
+ANDNOT AZA_Ultimo_Dosi_Girasol_Oliva
++L(401) AZA_ValorContadorAceite AZA_ValorPulsoOliva AZA_ValorContadorAceite
+LD TR0
+AND AZA_Ultimo_Dosi_Girasol_Oliva
++L(401) AZA_ValorContadorAceite AZA_ValorPulsoGirasol AZA_ValorContadorAceite
+LD TR0
+/L(431) AZA_ValorContadorAceite &10 AZA_ValorContadorAceite_uint
+BCD(024) AZA_ValorContadorAceite_uint V4_cbEdigitosvisorbajo
+'  Alarmas de la sincronización del aceite
+LD=S(302) AZA_RecetaConAceite &1
+TIM 2200 TEM_AZA_ALARMAACEITE
+LD TIM_AZA_ALARMAACEITE
+OUT A_AZA_FALTAPETICION
+'  Union de la activación de la señal de final de aceite.
+LD VIR_O_CBFINDESCACEITE_1
+OR VIR_O_CBFINDESCACEITE_2
+OUT O_CBFINDESCACEITE
+'  Envio de las colas y errores máximos
+LD AZA_Ultimo_Dosi_Girasol_Oliva
+MOVL(498) COLA_ACEITEGIRASOL V4_cbEcola
+MOVL(498) ERROR_ACEITEGIRASOL V4_cbEerrormaximo
+LDNOT AZA_Ultimo_Dosi_Girasol_Oliva
+MOVL(498) COLA_ACEITEOLIVA V4_cbEcola
+MOVL(498) ERROR_ACEITEOLIVA V4_cbEerrormaximo

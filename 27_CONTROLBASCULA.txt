@@ -1,0 +1,362 @@
+'  PROCEDIMENTO CONTROL PESO BASCULA
+SBN(092) 21
+'  CARGAMOS EL VALOR DE LOS TEMPORIZADOR CORRESPONDIENTE A EL VISOR EN PROCESO
+LD cierto
+OUT TR0
+MOVR(560) CBTIMALARMAPMA IR0
++L(401) IR0 cbEnumerovisor IR0
+AND ,IR0
+OUT cbAUXesttimalarmapma
+LD TR0
+MOVR(560) CBTIMCORTEDOSIFICACION IR0
++L(401) IR0 cbEnumerovisor IR0
+AND ,IR0
+OUT cbAUXesttimcortedosificacion
+LD TR0
+MOVR(560) CBTIMFALTAMATERIALCARGA IR0
++L(401) IR0 cbEnumerovisor IR0
+AND ,IR0
+OUT cbAUXesttimfaltamaterialcarga
+LD TR0
+MOVR(560) CBTIMFALTAMATERIALDESCARGA IR0
++L(401) IR0 cbEnumerovisor IR0
+AND ,IR0
+OUT cbAUXesttimfaltamaterialdescarga
+LD TR0
+MOVR(560) CBTIMLIMPIEZADESCARGA IR0
++L(401) IR0 cbEnumerovisor IR0
+AND ,IR0
+OUT cbAUXesttimlimpiezadescarga
+LD TR0
+MOVR(560) CBTTIMESTABILITAT IR0
++L(401) IR0 cbEnumerovisor IR0
+AND ,IR0
+OUT cbAUXesttimestabilidad
+LD TR0
+MOVR(560) CBTIMINICIOFINDESCARGA IR0
++L(401) IR0 cbEnumerovisor IR0
+AND ,IR0
+OUT cbAUXesttiminiciofindescarga
+LD TR0
+MOVR(560) CBTIMVALORALTOVALIDO IR0
++L(401) IR0 cbEnumerovisor IR0
+AND ,IR0
+OUT cbAUXesttimvaloraltovalido
+'  Definimos las transiciones
+LD CB_REPOSO
+ANDNOT CB_TRANSICION
+OUT TR0
+AND cbEordendosificar
+SET CB_ESPERAESTABILIDADINICIO
+RSET CB_REPOSO
+SET CB_TRANSICION
+MOVL(498) &0 cbSpesodosificado
+LD TR0
+AND cbEordendescargar
+SET CB_DESCARGA
+RSET CB_REPOSO
+SET CB_TRANSICION
+MOVL(498) cbSpesobruto cbSmuestrapesofaltamaterial
+//  Capturamos el primer peso para cálculo de tiempo de falta de material
+MOVL(498) &0 cbSpesodosificado
+MOVL(498) cbSpesobruto cbSpesotara
+//  Realizamos una tara al iniciar la descarga
+RSET cbSiniciofindescarga
+LD CB_ESPERAESTABILIDADINICIO
+ANDNOT CB_TRANSICION
+AND cbEordendosificar
+AND cbSestabilidad
+SET CB_DOSIFICACION
+RSET CB_ESPERAESTABILIDADINICIO
+SET CB_TRANSICION
+MOVL(498) cbSpesobruto cbSpesotara
+//  Realizamos una tara en la transición antes de iniciar la dosificación
+MOVL(498) cbSpesobruto cbSmuestrapesofaltamaterial
+//  Capturamos el primer peso para cálculo de tiempo de falta de material
+LD CB_DOSIFICACION
+ANDNOT CB_TRANSICION
+AND cbEordendosificar
+ANDNOT cbSsuperadopma
+ANDNOT cbEsobreescala
+OUT TR0
+-L(411) cbEconsigna cbEcola cbAUXpuntocorte
+AND>=SL(328) cbSpesoneto cbAUXpuntocorte
+OUT cbAUXacttimcortedosificacion
+LD TR0
+AND cbAUXesttimcortedosificacion
+SET CB_ESPERAESTABILIDADFIN
+RSET CB_DOSIFICACION
+SET CB_TRANSICION
+LD CB_ESPERAESTABILIDADFIN
+ANDNOT CB_TRANSICION
+AND cbEordendosificar
+AND cbSestabilidad
+OUT TR0
+-L(411) cbEconsigna cbEerrormaximo cbAUXvalorminimopermitido
+AND<SL(313) cbSpesodosificado cbAUXvalorminimopermitido
+SET CB_ERRORINFERIOR
+RSET CB_ESPERAESTABILIDADFIN
+SET CB_TRANSICION
+LD TR0
++L(401) cbEconsigna cbEerrormaximo cbAUXvalormaximopermitido
+AND>SL(323) cbSpesodosificado cbAUXvalormaximopermitido
+SET CB_ERRORSUPERIOR
+RSET CB_ESPERAESTABILIDADFIN
+SET CB_TRANSICION
+LD TR0
+AND>=SL(328) cbSpesodosificado cbAUXvalorminimopermitido
+AND<=SL(318) cbSpesodosificado cbAUXvalormaximopermitido
+SET CB_REPOSO
+RSET CB_ESPERAESTABILIDADFIN
+SET CB_TRANSICION
+LD CB_DESCARGA
+ANDNOT CB_TRANSICION
+AND cbEordendescargar
+OUT TR0
+AND cbSbasculavacia
+OUT cbAUXacttiminiciofindescarga
+LD TR0
+AND cbAUXesttiminiciofindescarga
+SET cbSiniciofindescarga
+LD TR0
+AND cbSiniciofindescarga
+OUT cbAUXacttimlimpiezadescarga
+LD TR0
+AND cbAUXesttimlimpiezadescarga
+SET CB_REPOSO
+RSET CB_DESCARGA
+SET CB_TRANSICION
+RSET cbSiniciofindescarga
+LD CB_ERRORINFERIOR
+AND cbEconfirmarerror
+SET CB_REPOSO
+RSET CB_ERRORINFERIOR
+SET CB_TRANSICION
+LD CB_ERRORSUPERIOR
+AND cbEconfirmarerror
+SET CB_REPOSO
+RSET CB_ERRORSUPERIOR
+SET CB_TRANSICION
+'  Al abortar pasamos a estado de reposo sea cual sea el paso en que nos encontremos
+LD cbEordenabortar
+SET CB_REPOSO
+RSET CB_DOSIFICACION
+RSET CB_ERRORINFERIOR
+RSET CB_ERRORSUPERIOR
+RSET CB_ESPERAESTABILIDADFIN
+RSET CB_ESPERAESTABILIDADINICIO
+RSET CB_DESCARGA
+SET CB_TRANSICION
+'  Reseteamos el bit de transición
+LD cierto
+RSET CB_TRANSICION
+LDNOT CB_DESCARGA
+ANDNOT CB_DOSIFICACION
+ANDNOT CB_ERRORINFERIOR
+ANDNOT CB_ERRORSUPERIOR
+ANDNOT CB_ESPERAESTABILIDADFIN
+ANDNOT CB_ESPERAESTABILIDADINICIO
+ANDNOT CB_REPOSO
+SET CB_REPOSO
+'  Definimos los estados:  REPOSO. Al tratarse del estado inicial inicializamos todas las variables. 
+LD CB_REPOSO
+RSET cbSciclodosificacion
+RSET cbSesperaestabilidad
+RSET cbSfinaldosificacion
+'  DESCARGA.  
+LD CB_DESCARGA
+SET cbSciclodosificacion
+RSET cbSfinaldosificacion
+AND cbEordendescargar
+OUT TR0
+OUT cbSdescarga
+-L(411) cbSmuestrapesofaltamaterial cbSpesobruto cbAUXdifpesomuestrades
+//  Realizamos las operaciones para activar la alarma de falta de material en descarga
+AND<=SL(318) cbAUXdifpesomuestrades cbEpesomaterialdescarga
+OUT cbAUXacttimfaltamaterialdescarga
+LD TR0
+AND cbAUXesttimfaltamaterialdescarga
+OUT cbSfaltadescarga
+LD TR0
+AND>SL(323) cbAUXdifpesomuestrades cbEpesomaterialdescarga
+MOVL(498) cbSpesobruto cbSmuestrapesofaltamaterial
+//  Si hemos superado el valor de falta de material desde la última muestra tomamos otra muestra
+LD TR0
+AND<=SL(318) cbSpesobruto cbEpesoparofiltrodescarga
+OUT cbAUXparadafiltro_1
+LD TR0
+NEGL(161) cbSpesoneto cbAUXdoblesinsigno
+//  Mostramos la cantidad de producto descargado
+MOVL(498) cbAUXdoblesinsigno cbSpesodosificado
+'  ESPERA ESTABILIDAD ANTES DE INICIO DOSIFICACION
+LD CB_ESPERAESTABILIDADINICIO
+SET cbSciclodosificacion
+SET cbSesperaestabilidad
+RSET cbSfinaldosificacion
+'  DOSIFICACIÓN
+LD CB_DOSIFICACION
+RSET cbSesperaestabilidad
+MOVL(498) cbSpesoneto cbSpesodosificado
+//  Mostramos la cantidad de producto dosificado
+AND cbEordendosificar
+ANDNOT cbSsuperadopma
+ANDNOT cbEsobreescala
+OUT TR0
+-L(411) cbEconsigna cbEcola cbAUXpuntocorte
+//  Calculos para determinar velocidad rápida y lenta
+-L(411) cbAUXpuntocorte cbElento cbAUXpuntocorte
+AND<SL(313) cbSpesoneto cbAUXpuntocorte
+OUT cbScargarapida
+LD TR0
+OUT cbScargaproducto
+MOVL(498) cbSpesoneto cbSpesodosificado
+//  Mostramos la cantidad de producto dosificado
+ANDNOT cbEdecremento
+-L(411) cbSpesobruto cbSmuestrapesofaltamaterial cbAUXdifpesomuestracar
+//  Realizamos las operaciones para activar la alarma de falta de material en carga.
+LD TR0
+AND cbEdecremento
+-L(411) cbSmuestrapesofaltamaterial cbSpesobruto cbAUXdifpesomuestracar
+//  Realizamos las operaciones para activar la alarma de falta de material en carga.
+LD TR0
+AND<=SL(318) cbAUXdifpesomuestracar cbEpesomaterialcarga
+OUT cbAUXacttimfaltamaterialcarga
+LD TR0
+AND cbAUXesttimfaltamaterialcarga
+OUT cbSfaltacarga
+LD TR0
+AND>SL(323) cbAUXdifpesomuestracar cbEpesomaterialcarga
+MOVL(498) cbSpesobruto cbSmuestrapesofaltamaterial
+//  Si hemos superado el valor de falta de material desde la última muestra tomamos otra muestra
+LD TR0
+-L(411) cbEconsigna cbEcola cbAUXpuntocorte2
+//  Indicamos si faltan -50 para punto de corte para senyal de parar filtro
+-L(411) cbAUXpuntocorte2 cbEpesoparofiltrocarga cbAUXpuntocorte2
+AND>=SL(328) cbSpesoneto cbAUXpuntocorte2
+OUT cbAUXparadafiltro_2
+'  ESPERA ESTABILIDAD EN FIN DE DOSIFICACIÓN
+LD CB_ESPERAESTABILIDADFIN
+SET cbSesperaestabilidad
+MOVL(498) cbSpesoneto cbSpesodosificado
+//  Mostramos la cantidad de producto dosificado
+'  SUPERADO ERROR MAXIMO POR ENCIMA DEL VALOR PERMITIDO
+LD CB_ERRORSUPERIOR
+OUT cbSsuperadoerrorsuperior
+RSET cbSesperaestabilidad
+SET cbSfinaldosificacion
+'  SUPERADO ERROR MAXIMO POR DEBAJO DEL VALOR PERMITIDO
+LD CB_ERRORINFERIOR
+OUT cbSsuperadoerrorinferior
+RSET cbSesperaestabilidad
+SET cbSfinaldosificacion
+'  AREA DE EJECUCIÓN INCONDICIONAL
+LD cbAUXparadafiltro_1
+OR cbAUXparadafiltro_2
+OUT cbSparadafiltro
+LD cbEdatavalid
+ANDNOT cbEsobreescala
+OUT TR0
+BIN(023) cbEdigitosvisorbajo cbAUXvisorbinario
+//  El valor de la entrada BCD sin signo és entre 0 y 9999 por lo que un word es suficiente.
+AND cbEsigno
+NEG(160) cbAUXvisorbinario cbAUXvisorbinario
+LD TR0
+MOV(021) cbAUXvisorbinario cbAUXvisorbinariosigno
+*(420) cbAUXvisorbinariosigno cbEescalado cbAUXdobleenterosigno
+//  Escalamos el valor para mostrar el número de digitos suficientes y transferimos como peso bruto
+AND>L(321) cbAUXdobleenterosigno cbSpesobruto
+-L(411) cbAUXdobleenterosigno cbSpesobruto cbAUXdiferenciavalorabsoluto
+LD TR0
+AND<=L(316) cbAUXdobleenterosigno cbSpesobruto
+-L(411) cbSpesobruto cbAUXdobleenterosigno cbAUXdiferenciavalorabsoluto
+LD TR0
+AND>L(321) cbAUXdiferenciavalorabsoluto cbEdiferenciamaximapesos
+OUT cbAUXacttimvaloraltovalido
+LD TR0
+LD<=L(316) cbAUXdiferenciavalorabsoluto cbEdiferenciamaximapesos
+OR cbAUXesttimvaloraltovalido
+ANDLD
+MOVL(498) cbAUXdobleenterosigno cbSpesobruto
+LD cierto
+OUT TR0
+-L(411) cbSpesobruto cbSpesotara cbSpesoneto
+//  Cálculo de la tara
+AND cbEdecremento
+NEGL(161) cbSpesoneto cbAUXpesonetoauxiliar
+//  Cálculo de la tara
+MOVL(498) cbAUXpesonetoauxiliar cbSpesoneto
+//  Cálculo de la tara
+LD TR0
+AND<SL(313) cbSpesobruto cbEbasculavacia
+OUT cbSbasculavacia
+//  Cálculo del bit de báscula vacia
+LD TR0
+AND>SL(323) cbSpesobruto cbEpma
+OUT cbAUXacttimalarmapma
+LD TR0
+AND cbAUXesttimalarmapma
+OUT cbSsuperadopma
+//  Alarma superado pma sola activa si ha estado activa al menos durante un segundo
+LD TR0
+-L(411) cbSmuestrapesoestabilidad cbSpesobruto cbAUXdiferenciaestabilidad
+//  Realizamos las operaciones para activar la estabilidad. Comprovamos diferencia entre muestra y peso actual
+AND<SL(313) cbAUXdiferenciaestabilidad &0
+NEGL(161) cbAUXdiferenciaestabilidad cbAUXdiferenciaestabilidadabsolutasin
+//  Calculamos el valor absoluto
+MOVL(498) cbAUXdiferenciaestabilidadabsolutasin cbAUXdiferenciaestabilidadabsoluta
+//  Calculamos el valor absoluto
+LD TR0
+AND>=SL(328) cbAUXdiferenciaestabilidad &0
+MOVL(498) cbAUXdiferenciaestabilidad cbAUXdiferenciaestabilidadabsoluta
+LD TR0
+AND<=SL(318) cbAUXdiferenciaestabilidadabsoluta cbEpesoestabilidad
+OUT cbAUXacttimestabilidad
+LD TR0
+AND cbAUXesttimestabilidad
+OUT cbSestabilidad
+LD TR0
+AND>SL(323) cbAUXdiferenciaestabilidadabsoluta cbEpesoestabilidad
+MOVL(498) cbSpesobruto cbSmuestrapesoestabilidad
+//  No es estable tomamos una nueva muestra
+'  EJECUCIÓN INCONDICIONAL: Activamos o temporizadores correspondientes según ordenes recibidas
+LD cierto
+MOVRW(561) CBTIMALARMAPMA IR0
++L(401) IR0 cbEnumerovisor IR0
+LD cbAUXacttimalarmapma
+TIM ,IR0 #20
+LD cierto
+MOVRW(561) CBTIMCORTEDOSIFICACION IR0
++L(401) IR0 cbEnumerovisor IR0
+LD cbAUXacttimcortedosificacion
+TIM ,IR0 cbEtiempocortedosificacion
+LD cierto
+MOVRW(561) CBTIMFALTAMATERIALCARGA IR0
++L(401) IR0 cbEnumerovisor IR0
+LD cbAUXacttimfaltamaterialcarga
+TIM ,IR0 cbEtiempofaltacarga
+LD cierto
+MOVRW(561) CBTIMFALTAMATERIALDESCARGA IR0
++L(401) IR0 cbEnumerovisor IR0
+LD cbAUXacttimfaltamaterialdescarga
+TIM ,IR0 cbEtiempofaltadescarga
+LD cierto
+MOVRW(561) CBTIMLIMPIEZADESCARGA IR0
++L(401) IR0 cbEnumerovisor IR0
+LD cbAUXacttimlimpiezadescarga
+TIM ,IR0 cbEtiempolimpiezadescarga
+LD cierto
+MOVRW(561) CBTTIMESTABILITAT IR0
++L(401) IR0 cbEnumerovisor IR0
+LD cbAUXacttimestabilidad
+TIM ,IR0 cbEtiempoestabilidad
+LD cierto
+MOVRW(561) CBTIMINICIOFINDESCARGA IR0
++L(401) IR0 cbEnumerovisor IR0
+LD cbAUXacttiminiciofindescarga
+TIM ,IR0 #10
+LD cierto
+MOVRW(561) CBTIMVALORALTOVALIDO IR0
++L(401) IR0 cbEnumerovisor IR0
+LD cbAUXacttimvaloraltovalido
+TIM ,IR0 #20
+RET(093)

@@ -1,0 +1,111 @@
+'  CONTROL PRODUCTO A CARGAR A VISOR 3
+LD=S(302) V3_cbcargaproducto &1
+//  Visor3 peticion de carga de producto AUTOMATICO
+OUT TR0
+AND=S(302) P1_crSproductovisor3 &4
+//  CODIGO PRODUCTO 4 = VINAGRE
+OUT MLSC2_PET_CargaVinagreaBT3_AUT
+LD TR0
+AND=S(302) P1_crSproductovisor3 &5
+//  CODIGO PRODUCTO 5 = LEVADURA
+OUT MLSC2_PET_CargaLevaduraaBT3_AUT
+LD TR0
+AND=S(302) P1_crSproductovisor3 &6
+//  CODIGO PRODUCTO 6 = AGUA
+OUT TR0
+AND=S(302) V3_cbScargarapida &0
+//  Carga lenta (agua fria)
+OUT MLSC2_PET_CargaAFriaaBT3_AUT
+LD TR0
+AND=S(302) V3_cbScargarapida &1
+//  Carga rapida (agua caliente)
+OUT MLSC2_PET_CargaACalienteaBT3_AUT
+'  DISCRIMINACIÓN AUTOMÁTICO/MANUAL ZONA SC2 MANIOBRA LIQUIDOS
+LD MLSC2_PET_CargaVinagreaBT3_AUT
+//  Petición carga Vinagre a BT3 AUTOMATICO
+AND=(300) ZSC2_ESTADO_INSTALACION &2
+LD VIR_I_PGCARGAVINAGREaBT3
+//  Petición carga Vinagre a BT3 MANUAL (pulsador virtual)
+AND=(300) ZSC2_ESTADO_INSTALACION &1
+ORLD
+OUT MLSC2_PET_CargaVinagreaBT3_CAM
+LD MLSC2_PET_CargaLevaduraaBT3_AUT
+//  Petición carga Levadura a BT3 AUTOMATICO
+AND=(300) ZSC2_ESTADO_INSTALACION &2
+LD VIR_I_PGCARGALEVADURAaBT3
+//  Petición carga Levadura a BT3 MANUAL (pulsador virtual)
+AND=(300) ZSC2_ESTADO_INSTALACION &1
+ORLD
+OUT MLSC2_PET_CargaLevaduraaBT3_CAM
+LD MLSC2_PET_CargaACalienteaBT3_AUT
+//  Petición carga Agua Caliente a BT3 AUTOMATICO
+AND=(300) ZSC2_ESTADO_INSTALACION &2
+LD VIR_I_PGCARGAACALIENTEaBT3
+//  Petición carga Agua Caliente a BT3 MANUAL (pulsador virtual)
+AND=(300) ZSC2_ESTADO_INSTALACION &1
+ORLD
+OUT MLSC2_PET_CargaACalienteaBT3_CAM
+LD MLSC2_PET_CargaAFriaaBT3_AUT
+//  Petición carga Agua Fria a BT3 AUTOMATICO
+AND=(300) ZSC2_ESTADO_INSTALACION &2
+LD VIR_I_PGCARGAAFRIAaBT3
+//  Petición carga Agua Fria a BT3 MANUAL (pulsador virtual)
+AND=(300) ZSC2_ESTADO_INSTALACION &1
+ORLD
+OUT MLSC2_PET_CargaAFriaaBT3_CAM
+'  CARGA DE LIQUIDOS EN BÁSCULA BT3
+LD MLSC2_PET_CargaVinagreaBT3_CAM
+//  Carga de Vinagre a báscula BT3
+AND I_FCVEBT3
+//  Válvula VEBT3 de la Báscula BT3 cerrada
+OUT O_EAVINAGRE
+OUT MLSC2_FUN_CargaVinagreaBT3
+LD MLSC2_PET_CargaLevaduraaBT3_CAM
+//  Carga de Levadura a báscula BT3
+AND I_FCVEBT3
+OUT O_EALEVADURA
+OUT MLSC2_FUN_CargaLevaduraaBT3
+LD MLSC2_PET_CargaACalienteaBT3_CAM
+//  Carga de Agua Caliente a báscula BT3
+AND I_FCVEBT3
+OUT O_EACALIENTE1
+ANDNOT I_FCAGUACAL
+OUT MLSC2_FUN_CargaACalienteaBT3
+LD MLSC2_PET_CargaAFriaaBT3_CAM
+//  Carga de Agua Fría a báscula BT3
+AND I_FCVEBT3
+OUT O_EAFRIA1
+ANDNOT I_FCAGUAFRIA
+OUT MLSC2_FUN_CargaAFriaBT3
+'  ALARMAS MANIOBRA LIQUIDOS ZONA SC2
+LD O_EACALIENTE1
+//  Válvula Agua Caliente no abre
+AND I_FCAGUACAL
+TIM 1300 #50
+LD TIM_A_MLSC2_O_EACALIENTE_C
+OUT A_MLSC2_O_EACALIENTE_C
+LDNOT O_EACALIENTE1
+//  Válvula Agua Caliente no cierra
+ANDNOT I_FCAGUACAL
+TIM 1301 #50
+LD TIM_A_MLSC2_N_O_EACALIENTE_A
+OUT A_MLSC2_O_EACALIENTE_C
+LD O_EAFRIA1
+//  Válvula Agua Fria no abre
+AND I_FCAGUAFRIA
+TIM 1302 #50
+LD TIM_A_MLSC2_O_EAAFRIA_C
+OUT A_MLSC2_O_EACALIENTE_C
+LDNOT O_EAFRIA1
+//  Válvula Agua Fria no cierra
+ANDNOT I_FCAGUAFRIA
+TIM 1303 #50
+LD TIM_A_MLSC2_N_O_EAAFRIA_A
+OUT A_MLSC2_O_EACALIENTE_C
+'  Controles de temperatura
+LD cierto
+MOV(021) 2011 MLSC2_TemperaturaAguaCaliente
+LD cierto
+MOV(021) 2012 MLSC2_TemperaturaAguaFria
+LD cierto
+MOV(021) 2013 MLSC2_TemperaturaTolvaAgua

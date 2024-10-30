@@ -1,0 +1,4 @@
+'  Final del salto de inicialización del PLC
+JME(005) &400
+LD TIM_GENE_ARRANQUEPLC
+JMP(004) &401

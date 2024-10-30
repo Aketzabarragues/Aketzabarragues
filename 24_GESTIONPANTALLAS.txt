@@ -1,0 +1,1046 @@
+'  MOVIMIENTO DE MEMORIA DE W A DM POR CAUSA DEL NO ACCESO DE LA PANTALLA A LA ZONA W
+LD cierto
+XFER(070) &206 W300 D9300
+//  Transferimos el funcionamiento de los dispositivos y las alarmas a la region leible desde el PLC
+LD cierto
+//  Tranferimos los pulsadores virtuales a la zona reservado para eso EXCEPTO el 299 que tiene otro uso
+XFER(070) &38 D9260 W260
+'  Control para la correcta asignación de PRODUCTO Y SILO en pantalla ASIGNACIÓN PRODUCTO SILO
+LD cierto
+MOV(021) &0 ZSC2_SILO_CARGA_BOLLERIA
+LD<>(305) ZSC2_SILO_CARGA_PANIFICABLE &1
+AND<>(305) ZSC2_SILO_CARGA_PANIFICABLE &2
+AND<>(305) ZSC2_SILO_CARGA_PANIFICABLE &4
+AND<>(305) ZSC2_SILO_CARGA_PANIFICABLE &6
+AND<>(305) ZSC2_SILO_CARGA_PANIFICABLE &9
+AND<>(305) ZSC2_SILO_CARGA_PANIFICABLE &10
+MOV(021) &0 ZSC2_SILO_CARGA_PANIFICABLE
+LD<>(305) ZSC2_SILO_CARGA_INTEGRAL &3
+AND<>(305) ZSC2_SILO_CARGA_INTEGRAL &5
+MOV(021) &0 ZSC2_SILO_CARGA_INTEGRAL
+LD cierto
++(400) ASC2_EstadoColaPeticiones &163 ASC2_IndEstadoCola
+//  Indicamos por pantalla el estado de la cola de peticiones
+LD I_SSHABILITAR_COLA
+MOV(021) &0 ASC2_IndParoColaDeshabilitada
+LDNOT I_SSHABILITAR_COLA
+MOV(021) &1 ASC2_IndParoColaDeshabilitada
+'  Alarmas de la gestión de la cola de peticiones
+LD=(300) ASC2_EstadoColaPeticiones &0
+//  La cola de peticiones esta en reposo
+LD=S(302) PSC2_BaseColaPeticiones &0
+//  La cola de peticiones esta vacia
+OR=S(302) PSC2_BaseCantidadPeticiones &0
+//  La cola de peticiones esta vacia
+ANDLD
+AND=S(302) ZSC2_ESTADO_INSTALACION &2
+AND I_SSHABILITAR_COLA
+OUT A_ZSC2_COLAVACIA
+LD=(300) ASC2_EstadoColaPeticiones &0
+//  La cola de peticiones esta en reposo
+AND=S(302) ZSC2_ESTADO_INSTALACION &2
+AND I_SSHABILITAR_COLA
+AND<>S(307) PSC2_BaseColaPeticiones &0
+//  Si la cola no esta vacia
+AND<>S(307) PSC2_BaseCantidadPeticiones &0
+//  La cola de peticiones esta vacia
+AND<>S(307) ASC2_UltimaRecetaEjecutada PSC2_BaseColaPeticiones
+//  Si la receta és la misma que la última ejecutada o és diferente y hay confirmación
+ANDNOT VIR_I_PGCONFSEGUIRCOLA
+OUT A_ZSC2_CAMBIORECETA
+'  Gravación de recetas
+LD VIR_I_PGGRABARRECETA
+MOV(021) &0 GESPAN_Contador
+MOV(021) &0 GESPAN_Contador2
+-(410) GESPAN_RecetaAEditar &1 GESPAN_AUXRecetaAEditar
+*(420) &36 GESPAN_AUXRecetaAEditar GESPAN_AUXdobleauxiliar
+MOV(021) GESPAN_AUXdobleauxiliar GESPAN_AUXindireccionesD
++(400) GESPAN_AUXindireccionesD P1_crEdireccionrecetario GESPAN_AUXindireccionesD
++(400) GESPAN_AUXindireccionesD &12 GESPAN_AUXindireccionesD2
+FOR(512) &12
+LD VIR_I_PGGRABARRECETA
+COLL(081) GESPAN_BaseCodigoEdicion GESPAN_Contador GESPAN_Auxiliar
+MOV(021) GESPAN_Auxiliar @GESPAN_AUXindireccionesD
+COLL(081) GESPAN_BaseCantidadEdicion GESPAN_Contador2 GESPAN_Auxiliar
+MOV(021) GESPAN_Auxiliar @GESPAN_AUXindireccionesD2
+++(590) GESPAN_Contador2
++(400) GESPAN_AUXindireccionesD2 &1 GESPAN_AUXindireccionesD2
+COLL(081) GESPAN_BaseCantidadEdicion GESPAN_Contador2 GESPAN_Auxiliar
+MOV(021) GESPAN_Auxiliar @GESPAN_AUXindireccionesD2
+++(590) GESPAN_Contador2
++(400) GESPAN_AUXindireccionesD2 &1 GESPAN_AUXindireccionesD2
+++(590) GESPAN_Contador
++(400) GESPAN_AUXindireccionesD &1 GESPAN_AUXindireccionesD
+NEXT(513)
+'  Eliminación de códigos no válidos
+LD cierto
+MOV(021) &0 GESPAN_Contador
+FOR(512) &12
+LD cierto
+OUT TR0
+COLL(081) GESPAN_BaseCodigoEdicion GESPAN_Contador GESPAN_Auxiliar
+AND=(300) GESPAN_Auxiliar &1
+DIST(080) &2 GESPAN_BaseCodigoEdicion GESPAN_Contador
+LD TR0
+++(590) GESPAN_Contador
+NEXT(513)
+'  Lectura de recetas
+LD<>S(307) GESPAN_RecetaAEditar GESPAN_AnteriorRecetaAEditar
+MOV(021) &0 GESPAN_Contador
+MOV(021) &0 GESPAN_Contador2
+-(410) GESPAN_RecetaAEditar &1 GESPAN_AUXRecetaAEditar
+*(420) &36 GESPAN_AUXRecetaAEditar GESPAN_AUXdobleauxiliar
+MOV(021) GESPAN_AUXdobleauxiliar GESPAN_AUXindireccionesD
++(400) GESPAN_AUXindireccionesD P1_crEdireccionrecetario GESPAN_AUXindireccionesD
++(400) GESPAN_AUXindireccionesD &12 GESPAN_AUXindireccionesD2
+FOR(512) &12
+LD<>S(307) GESPAN_RecetaAEditar GESPAN_AnteriorRecetaAEditar
+MOV(021) @GESPAN_AUXindireccionesD GESPAN_Auxiliar
+DIST(080) GESPAN_Auxiliar GESPAN_BaseCodigoEdicion GESPAN_Contador
+MOV(021) @GESPAN_AUXindireccionesD2 GESPAN_Auxiliar
+DIST(080) GESPAN_Auxiliar GESPAN_BaseCantidadEdicion GESPAN_Contador2
+++(590) GESPAN_Contador2
++(400) GESPAN_AUXindireccionesD2 &1 GESPAN_AUXindireccionesD2
+MOV(021) @GESPAN_AUXindireccionesD2 GESPAN_Auxiliar
+DIST(080) GESPAN_Auxiliar GESPAN_BaseCantidadEdicion GESPAN_Contador2
+++(590) GESPAN_Contador2
++(400) GESPAN_AUXindireccionesD2 &1 GESPAN_AUXindireccionesD2
+++(590) GESPAN_Contador
++(400) GESPAN_AUXindireccionesD &1 GESPAN_AUXindireccionesD
+NEXT(513)
+LD cierto
+MOV(021) GESPAN_RecetaAEditar GESPAN_AnteriorRecetaAEditar
+'  Mostramos la descripción del producto en edición de recetas
+LD cierto
+MOV(021) &0 GESPAN_Contador
+MOV(021) &0 GESPAN_Contador2
+FOR(512) &11
+LD cierto
+OUT TR0
+COLL(081) GESPAN_BaseCodigoEdicion GESPAN_Contador GESPAN_Auxiliar
+AND=S(302) GESPAN_Auxiliar &0
+DIST(080) &0 GESPAN_BaseCantidadEdicion GESPAN_Contador2
+++(590) GESPAN_Contador2
+DIST(080) &0 GESPAN_BaseCantidadEdicion GESPAN_Contador2
+--(592) GESPAN_Contador2
+LD TR0
++(400) GESPAN_Auxiliar &219 GESPAN_Auxiliar
+//  Añadimos el desplazamiento para el string en pantalla
+DIST(080) GESPAN_Auxiliar GESPAN_BaseDescripcionEdicion GESPAN_Contador
+++(590) GESPAN_Contador
+++(590) GESPAN_Contador2
+++(590) GESPAN_Contador2
+NEXT(513)
+'  Controlamos la posiciones de la receta reservadas exclusivamente para SAL,AZUCAR y ACEITE y SALMUERA
+LD<>S(307) GESPAN_RecetaCodigoAzucar &8
+AND<>S(307) GESPAN_RecetaCodigoAzucar &0
+MOV(021) &0 GESPAN_RecetaCodigoAzucar
+LD<>S(307) GESPAN_RecetaCodigoSal &9
+AND<>S(307) GESPAN_RecetaCodigoSal &0
+MOV(021) &0 GESPAN_RecetaCodigoSal
+LD<>S(307) GESPAN_RecetaCodigoAceite &10
+AND<>S(307) GESPAN_RecetaCodigoAceite &11
+AND<>S(307) GESPAN_RecetaCodigoAceite &0
+MOV(021) &0 GESPAN_RecetaCodigoAceite
+LD<>S(307) GESPAN_RecetaCodigoSalmorra &12
+AND<>S(307) GESPAN_RecetaCodigoSalmorra &0
+MOV(021) &0 GESPAN_RecetaCodigoSalmorra
+'  CONTROL MANUAL/AUTOMATICO/REPOSO DE ZONA ACEITE DESDE PANTALLA TACTIL
+LD VIR_I_PGREPOSO_ZA
+//  REPOSO
+ANDNOT VIR_I_PGMANUAL_ZA
+ANDNOT VIR_I_PGAUTO_ZA
+MOV(021) &0 ZA_ESTADO_INSTALACION
+LD VIR_I_PGMANUAL_ZA
+//  MANUAL
+ANDNOT VIR_I_PGREPOSO_ZA
+ANDNOT VIR_I_PGAUTO_ZA
+MOV(021) &1 ZA_ESTADO_INSTALACION
+LD VIR_I_PGAUTO_ZA
+//  AUTOMATICO
+ANDNOT VIR_I_PGREPOSO_ZA
+ANDNOT VIR_I_PGMANUAL_ZA
+MOV(021) &2 ZA_ESTADO_INSTALACION
+'  CONTROL MANUAL/AUTOMATICO/REPOSO DE ZONA SALMORRA DESDE PANTALLA TACTIL
+LD VIR_I_PGREPOSO_ZS
+//  REPOSO
+ANDNOT VIR_I_PGMANUAL_ZS
+ANDNOT VIR_I_PGAUTO_ZS
+MOV(021) &0 ZS_ESTADO_INSTALACION
+LD VIR_I_PGMANUAL_ZS
+//  MANUAL
+ANDNOT VIR_I_PGREPOSO_ZS
+ANDNOT VIR_I_PGAUTO_ZS
+MOV(021) &1 ZS_ESTADO_INSTALACION
+LD VIR_I_PGAUTO_ZS
+//  AUTOMATICO
+ANDNOT VIR_I_PGREPOSO_ZS
+ANDNOT VIR_I_PGMANUAL_ZS
+MOV(021) &2 ZS_ESTADO_INSTALACION
+'  CONTROL MANUAL/AUTOMATICO/REPOSO DE ZONA SC2 DESDE PANTALLA TACTIL
+LD VIR_I_PGREPOSO_ZSC2
+//  REPOSO
+ANDNOT VIR_I_PGMANUAL_ZSC2
+ANDNOT VIR_I_PGAUTO_ZSC2
+MOV(021) &0 ZSC2_ESTADO_INSTALACION
+LD VIR_I_PGMANUAL_ZSC2
+//  MANUAL
+ANDNOT VIR_I_PGREPOSO_ZSC2
+ANDNOT VIR_I_PGAUTO_ZSC2
+MOV(021) &1 ZSC2_ESTADO_INSTALACION
+LD VIR_I_PGAUTO_ZSC2
+//  AUTOMATICO
+ANDNOT VIR_I_PGREPOSO_ZSC2
+ANDNOT VIR_I_PGMANUAL_ZSC2
+MOV(021) &2 ZSC2_ESTADO_INSTALACION
+'  CONTROL MANUAL/AUTOMATICO/REPOSO DE ZONA PULMON INTEGRAL DESDE PANTALLA TACTIL
+LD VIR_I_PGREPOSO_ZPI
+//  REPOSO
+ANDNOT VIR_I_PGMANUAL_ZPI
+ANDNOT VIR_I_PGAUTO_ZPI
+MOV(021) &0 ZPI_ESTADO_INSTALACION
+LD VIR_I_PGMANUAL_ZPI
+//  MANUAL
+ANDNOT VIR_I_PGREPOSO_ZPI
+ANDNOT VIR_I_PGAUTO_ZPI
+MOV(021) &1 ZPI_ESTADO_INSTALACION
+LD VIR_I_PGAUTO_ZPI
+//  AUTOMATICO
+ANDNOT VIR_I_PGREPOSO_ZPI
+ANDNOT VIR_I_PGMANUAL_ZPI
+MOV(021) &2 ZPI_ESTADO_INSTALACION
+'  VISUALIZAR ESTADO DE INSTALACIÓN DE DISPLAY ZSC2
+LD=(300) &0 ZSC2_ESTADO_INSTALACION
+//  REPOSO
+MOV(021) &160 ZSC2_ESTADO_INST_DISPLAY
+LD=(300) &1 ZSC2_ESTADO_INSTALACION
+//  MANUAL
+MOV(021) &161 ZSC2_ESTADO_INST_DISPLAY
+LD=(300) &2 ZSC2_ESTADO_INSTALACION
+//  AUTOMATICO
+MOV(021) &162 ZSC2_ESTADO_INST_DISPLAY
+'  VISUALIZAR ESTADO DE INSTALACIÓN DE DISPLAY ZPI
+LD=(300) &0 ZPI_ESTADO_INSTALACION
+//  REPOSO
+MOV(021) &160 ZPI_ESTADO_INST_DISPLAY
+LD=(300) &1 ZPI_ESTADO_INSTALACION
+//  MANUAL
+MOV(021) &161 ZPI_ESTADO_INST_DISPLAY
+LD=(300) &2 ZPI_ESTADO_INSTALACION
+//  AUTOMATICO
+MOV(021) &162 ZPI_ESTADO_INST_DISPLAY
+'  VISUALIZAR ESTADO DE INSTALACIÓN DE DISPLAY ZA
+LD=(300) &0 ZA_ESTADO_INSTALACION
+//  REPOSO
+MOV(021) &160 ZA_ESTADO_INST_DISPLAY
+LD=(300) &1 ZA_ESTADO_INSTALACION
+//  MANUAL
+MOV(021) &161 ZA_ESTADO_INST_DISPLAY
+LD=(300) &2 ZA_ESTADO_INSTALACION
+//  AUTOMATICO
+MOV(021) &162 ZA_ESTADO_INST_DISPLAY
+'  VISUALIZAR ESTADO DE INSTALACIÓN DE DISPLAY ZS
+LD=(300) &0 ZS_ESTADO_INSTALACION
+//  REPOSO
+MOV(021) &160 ZS_ESTADO_INST_DISPLAY
+LD=(300) &1 ZS_ESTADO_INSTALACION
+//  MANUAL
+MOV(021) &161 ZS_ESTADO_INST_DISPLAY
+LD=(300) &2 ZS_ESTADO_INSTALACION
+//  AUTOMATICO
+MOV(021) &162 ZS_ESTADO_INST_DISPLAY
+'  RECETA EN CURSO: Actualizamos la indicación de Estado de la receta P1 en pantalla
+LD cierto
+OUT TR0
+MOV(021) &0 GESPAN_IndEstadoRecetaSC2
+ANDTST(350) P1_crAUXbitsgraforeceta &12
+MOV(021) &235 GESPAN_IndEstadoRecetaSC2
+//  REPOSO
+LD TR0
+ANDTST(350) P1_crAUXbitsgraforeceta &8
+MOV(021) &236 GESPAN_IndEstadoRecetaSC2
+//  COMPROVACION BASCULAS
+LD TR0
+ANDTST(350) P1_crAUXbitsgraforeceta &15
+MOV(021) &237 GESPAN_IndEstadoRecetaSC2
+//  CARGA
+LD TR0
+ANDTST(350) P1_crAUXbitsgraforeceta &10
+MOV(021) &238 GESPAN_IndEstadoRecetaSC2
+//  PAUSA CARGA
+LD TR0
+ANDTST(350) P1_crAUXbitsgraforeceta &11
+MOV(021) &239 GESPAN_IndEstadoRecetaSC2
+//  ESPERA/PAUSA DESCARGA
+LD TR0
+ANDTST(350) P1_crAUXbitsgraforeceta &9
+MOV(021) &240 GESPAN_IndEstadoRecetaSC2
+//  DESCARGA
+'  RECETA EN CURSO: Actualizamos la indicación de Estado de la receta P2 en pantalla
+LD cierto
+OUT TR0
+MOV(021) &0 GESPAN_IndEstadoRecetaAzuSal
+ANDTST(350) P2_crAUXbitsgraforeceta &12
+MOV(021) &235 GESPAN_IndEstadoRecetaAzuSal
+//  REPOSO
+LD TR0
+ANDTST(350) P2_crAUXbitsgraforeceta &8
+MOV(021) &236 GESPAN_IndEstadoRecetaAzuSal
+//  COMPROVACION BASCULAS
+LD TR0
+ANDTST(350) P2_crAUXbitsgraforeceta &15
+MOV(021) &237 GESPAN_IndEstadoRecetaAzuSal
+//  CARGA
+LD TR0
+ANDTST(350) P2_crAUXbitsgraforeceta &10
+MOV(021) &238 GESPAN_IndEstadoRecetaAzuSal
+//  PAUSA CARGA
+LD TR0
+ANDTST(350) P2_crAUXbitsgraforeceta &11
+MOV(021) &239 GESPAN_IndEstadoRecetaAzuSal
+//  ESPERA/PAUSA DESCARGA
+LD TR0
+ANDTST(350) P2_crAUXbitsgraforeceta &9
+MOV(021) &240 GESPAN_IndEstadoRecetaAzuSal
+//  DESCARGA
+'  RECETA EN CURSO: Actualizamos la indicación de Estado de la comunicación con amasadora
+LD cierto
+OUT TR0
+AND CA_GRAFOSC2REPOSO
+MOV(021) &242 GESPAN_IndEstadoComAmasaSC2
+LD TR0
+AND CA_GRAFOSC2PREPARACION
+MOV(021) &243 GESPAN_IndEstadoComAmasaSC2
+LD TR0
+AND CA_GRAFOSC2ESPERAAZUCAR
+MOV(021) &244 GESPAN_IndEstadoComAmasaSC2
+LD TR0
+AND CA_GRAFOSC2ESPERAACEITE
+MOV(021) &245 GESPAN_IndEstadoComAmasaSC2
+LD TR0
+AND CA_GRAFOSC2ESPERADESCARGA
+MOV(021) &246 GESPAN_IndEstadoComAmasaSC2
+LD TR0
+AND CA_GRAFOSC2DESCARGA
+MOV(021) &247 GESPAN_IndEstadoComAmasaSC2
+LD TR0
+AND CA_GRAFOSC2PAUSADESCARGA
+MOV(021) &248 GESPAN_IndEstadoComAmasaSC2
+LD TR0
+AND CA_GRAFOSC2ESPERAFINAZUCAR
+MOV(021) &249 GESPAN_IndEstadoComAmasaSC2
+LD TR0
+AND CA_GRAFOSC2ESPERAFINCOMUNICA
+MOV(021) &250 GESPAN_IndEstadoComAmasaSC2
+LD TR0
+AND CA_GRAFOSC2ESPERAFININGREDIADOR
+MOV(021) &251 GESPAN_IndEstadoComAmasaSC2
+'  RECETA EN CURSO: Actualizamos la descripción de los productos de la receta  en curso y del estado del producto
+LD cierto
+MOV(021) &0 GESPAN_Contador
+FOR(512) &11
+LD cierto
+COLL(081) P1_crSbasecodigoproducto GESPAN_Contador GESPAN_Auxiliar
+//  Actualitzamos la descripción del producto a mostrar por pantalla.
++(400) GESPAN_Auxiliar &219 GESPAN_Auxiliar
+DIST(080) GESPAN_Auxiliar GESPAN_DescripcionRecetaCurso GESPAN_Contador
+COLL(081) P1_crSbasedosificado GESPAN_Contador GESPAN_Auxiliar
+//  Actualitzamos la descripción del producto a mostrar por pantalla.
++(400) GESPAN_Auxiliar &232 GESPAN_Auxiliar
+DIST(080) GESPAN_Auxiliar GESPAN_EstadoRecetaCurso GESPAN_Contador
+++(590) GESPAN_Contador
+NEXT(513)
+'  RECETA EN CURSO: Indicadores de error de dosificación.
+LD<>S(307) V1_cbSsuperadoerrorinferior &0
+//  Visor de Harinas
+OR<>S(307) V1_cbSsuperadoerrorsuperior &0
+MOV(021) &1 GESPAN_IndErrorHarina
+LD=S(302) V1_cbSsuperadoerrorinferior &0
+AND=S(302) V1_cbSsuperadoerrorsuperior &0
+MOV(021) &0 GESPAN_IndErrorHarina
+LD=S(302) V1_cbSsuperadoerrorinferior &1
+OUT A_ZSC2_V1ERRINFERIOR
+LD=S(302) V1_cbSsuperadoerrorsuperior &1
+OUT A_ZSC2_V1ERRSUPERIOR
+LD<>S(307) V2_cbSsuperadoerrorinferior &0
+//  Visor de Sal y Azúcar
+OR<>S(307) V2_cbSsuperadoerrorsuperior &0
+MOV(021) &1 GESPAN_IndErrorAzuSal
+LD=S(302) V2_cbSsuperadoerrorinferior &0
+AND=S(302) V2_cbSsuperadoerrorsuperior &0
+MOV(021) &0 GESPAN_IndErrorAzuSal
+LD=S(302) V2_cbSsuperadoerrorinferior &1
+OUT A_ZSC2_V2ERRINFERIOR
+LD=S(302) V2_cbSsuperadoerrorsuperior &1
+OUT A_ZSC2_V2ERRSUPERIOR
+LD<>S(307) V3_cbSsuperadoerrorinferior &0
+//  Visor de Líquidos
+OR<>S(307) V3_cbSsuperadoerrorsuperior &0
+MOV(021) &1 GESPAN_IndErrorLiquidos
+LD=S(302) V3_cbSsuperadoerrorinferior &0
+AND=S(302) V3_cbSsuperadoerrorsuperior &0
+MOV(021) &0 GESPAN_IndErrorLiquidos
+LD=S(302) V3_cbSsuperadoerrorinferior &1
+OUT A_ZSC2_V3ERRINFERIOR
+LD=S(302) V3_cbSsuperadoerrorsuperior &1
+OUT A_ZSC2_V3ERRSUPERIOR
+LD<>S(307) V4_cbSsuperadoerrorinferior &0
+//  Visor de Aceite
+OR<>S(307) V4_cbSsuperadoerrorsuperior &0
+MOV(021) &1 GESPAN_IndErrorAceite
+LD=S(302) V4_cbSsuperadoerrorinferior &0
+AND=S(302) V4_cbSsuperadoerrorsuperior &0
+MOV(021) &0 GESPAN_IndErrorAceite
+LD=S(302) V4_cbSsuperadoerrorinferior &1
+OUT A_AZSC2_V4SUPERADOMINIMO
+LD=S(302) V4_cbSsuperadoerrorsuperior &1
+OUT A_AZSC2_V4SUPERADOMAXIMO
+LD<>S(307) V5_cbSsuperadoerrorinferior &0
+//  Visor de Ingrediador
+OR<>S(307) V5_cbSsuperadoerrorsuperior &0
+MOV(021) &1 GESPAN_IndErrorIngrediador
+LD=S(302) V5_cbSsuperadoerrorinferior &0
+AND=S(302) V5_cbSsuperadoerrorsuperior &0
+MOV(021) &0 GESPAN_IndErrorIngrediador
+LD=S(302) V5_cbSsuperadoerrorinferior &1
+OUT A_ZSC2_V5ERRINFERIOR
+LD=S(302) V5_cbSsuperadoerrorsuperior &1
+OUT A_ZSC2_V5ERRSUPERIOR
+LD<>S(307) V8_cbSsuperadoerrorinferior &0
+//  Visor de Salmuera
+OR<>S(307) V8_cbSsuperadoerrorsuperior &0
+MOV(021) &1 GESPAN_IndErrorSalmorra
+LD=S(302) V8_cbSsuperadoerrorinferior &0
+AND=S(302) V8_cbSsuperadoerrorsuperior &0
+MOV(021) &0 GESPAN_IndErrorSalmorra
+LD=S(302) V8_cbSsuperadoerrorinferior &1
+OUT A_AZS_V8SUPERADOMINIMO
+LD=S(302) V8_cbSsuperadoerrorsuperior &1
+OUT A_AZS_V8SUPERADOMAXIMO
+'  RECETA CURSO: Pulsadores de abortar receta
+LD VIR_I_PGABORTARV1
+AND=(300) ZSC2_ESTADO_INSTALACION &0
+UP(521)
+MOV(021) &1 V1_cbEordenabortar
+'  RECETA CURSO: Pulsadores de abortar receta
+LD VIR_I_PGABORTARV1
+AND=(300) ZSC2_ESTADO_INSTALACION &0
+UP(521)
+MOV(021) &1 V1_cbEordenabortar
+LD VIR_I_PGABORTARV1
+AND=(300) ZSC2_ESTADO_INSTALACION &0
+DIFD(014) H480.00
+AND H480.00
+MOV(021) &0 V1_cbEordenabortar
+LD VIR_I_PGABORTARV2
+AND=(300) ZSC2_ESTADO_INSTALACION &0
+UP(521)
+MOV(021) &1 V2_cbEordenabortar
+LD VIR_I_PGABORTARV2
+AND=(300) ZSC2_ESTADO_INSTALACION &0
+DIFD(014) H480.01
+AND H480.01
+MOV(021) &0 V2_cbEordenabortar
+LD VIR_I_PGABORTARV3
+AND=(300) ZSC2_ESTADO_INSTALACION &0
+UP(521)
+MOV(021) &1 V3_cbEordenabortar
+LD VIR_I_PGABORTARV3
+AND=(300) ZSC2_ESTADO_INSTALACION &0
+DIFD(014) H480.02
+AND H480.02
+MOV(021) &0 V3_cbEordenabortar
+LD VIR_I_PGABORTARV4
+AND=(300) ZSC2_ESTADO_INSTALACION &0
+UP(521)
+MOV(021) &1 V4_cbEordenabortar
+LD VIR_I_PGABORTARV4
+AND=(300) ZSC2_ESTADO_INSTALACION &0
+DIFD(014) H480.03
+AND H480.03
+MOV(021) &0 V4_cbEordenabortar
+LD VIR_I_PGABORTARV5
+AND=(300) ZSC2_ESTADO_INSTALACION &0
+UP(521)
+MOV(021) &1 V5_cbEordenabortar
+LD VIR_I_PGABORTARV5
+AND=(300) ZSC2_ESTADO_INSTALACION &0
+DIFD(014) H480.04
+AND H480.04
+MOV(021) &0 V5_cbEordenabortar
+'  RECETA EN CURSO: Actualizamos estado de comunica amasadora Azucar Sal
+LD cierto
+OUT TR0
+AND CA_GRAFOAZUSALREPOSO
+MOV(021) &253 GESPAN_IndEstadoComAmasaAzuSal
+LD TR0
+AND CA_GRAFOAZUSALPREPARACIONAZUCAR
+MOV(021) &254 GESPAN_IndEstadoComAmasaAzuSal
+LD TR0
+AND CA_GRAFOAZUSALESPDESCARGAAZUCAR
+MOV(021) &255 GESPAN_IndEstadoComAmasaAzuSal
+LD TR0
+AND CA_GRAFOAZUSALDESCARGAAZUCAR
+MOV(021) &256 GESPAN_IndEstadoComAmasaAzuSal
+LD TR0
+AND CA_GRAFOAZUSALPAUSADESCAZUCAR
+MOV(021) &257 GESPAN_IndEstadoComAmasaAzuSal
+LD TR0
+AND CA_GRAFOAZUSALPREPARACIONSAL
+MOV(021) &258 GESPAN_IndEstadoComAmasaAzuSal
+LD TR0
+AND CA_GRAFOAZUSALESPDESCARGASAL
+MOV(021) &259 GESPAN_IndEstadoComAmasaAzuSal
+LD TR0
+AND CA_GRAFOAZUSALDESCARGASAL
+MOV(021) &260 GESPAN_IndEstadoComAmasaAzuSal
+LD TR0
+AND CA_GRAFOAZUSALPAUSADESCSAL
+MOV(021) &261 GESPAN_IndEstadoComAmasaAzuSal
+LD TR0
+AND CA_GRAFOAZUSALESPERAFINCOM
+MOV(021) &262 GESPAN_IndEstadoComAmasaAzuSal
+'  RECETA EN CURSO: Actualizamos estado de comunica amasadora aceite
+LD cierto
+OUT TR0
+AND AZA_GRAFOREPOSO
+MOV(021) &264 GESPAN_IndEstadoComAmasaAceite
+LD TR0
+AND AZA_GRAFODOSIFICACION
+MOV(021) &265 GESPAN_IndEstadoComAmasaAceite
+LD TR0
+AND AZA_GRAFOPAUSADOSIFICACION
+MOV(021) &266 GESPAN_IndEstadoComAmasaAceite
+LD TR0
+AND AZA_GRAFOESPERAFINPETICON
+MOV(021) &267 GESPAN_IndEstadoComAmasaAceite
+'  RECETA EN CURSO: Actualizamos estado de comunica amasadora aceite
+LD cierto
+OUT TR0
+AND AZS_GRAFOREPOSO
+MOV(021) &264 GESPAN_IndEstadoComAmasaSalmuera
+LD TR0
+AND AZS_GRAFODOSIFICACION
+MOV(021) &265 GESPAN_IndEstadoComAmasaSalmuera
+LD TR0
+AND AZS_GRAFOPAUSADOSIFICACION
+MOV(021) &266 GESPAN_IndEstadoComAmasaSalmuera
+LD TR0
+AND AZS_GRAFOESPERAFINPETICON
+MOV(021) &267 GESPAN_IndEstadoComAmasaSalmuera
+'  RECETA EN CURSO: Actualizamos los indicadores de receta en curso que requieren calculos
+LD cierto
+OUT TR0
++(400) AZA_EstadoAceite &232 GESPAN_EstadoAceiteCurso
+//  Aceite
+AND=(300) AZA_RecetaConAceite &1
+OUT TR1
+AND=(300) AZA_CodigoAceiteDosificar &10
+MOV(021) &229 GESPAN_IndCodigoAceiteCurso
+//  Aceite
+LD TR1
+AND=(300) AZA_CodigoAceiteDosificar &11
+MOV(021) &230 GESPAN_IndCodigoAceiteCurso
+//  Aceite
+LD TR1
+MOVL(498) AZA_ConsignaAceite GESPAN_TeoricoAceiteCurso
+LD TR0
+AND<>(305) AZA_RecetaConAceite &1
+MOV(021) &219 GESPAN_IndCodigoAceiteCurso
+//  Aceite
+LD TR0
+MOVL(498) AZA_Cantidaddosificada GESPAN_RealAceiteCurso
++(400) AZS_EstadoSalmuera &232 GESPAN_EstadoSalmorraCurso
+//  Aceite
+AND=(300) AZS_RecetaConSalmuera &1
+MOV(021) &231 GESPAN_IndCodigoSalmueraCurso
+//  Aceite
+MOVL(498) AZS_ConsignaSalmuera GESPAN_TeoricoSalmueraCurso
+LD TR0
+AND<>(305) AZS_RecetaConSalmuera &1
+MOV(021) &219 GESPAN_IndCodigoSalmueraCurso
+//  Aceite
+LD TR0
+MOVL(498) AZS_Cantidaddosificada GESPAN_RealSalmueraCurso
+MOVL(498) P2_crScantidadTeoricaSalCurso GESPAN_TeoricoSalCurso
+//  Sal
+AND=S(302) P2_crScodigoSalCurso &0
+MOV(021) &219 GESPAN_IndCodigoSalCurso
+//  Sal
+LD TR0
+AND<>S(307) P2_crScodigoSalCurso &0
+MOV(021) &228 GESPAN_IndCodigoSalCurso
+//  Sal
+LD TR0
+MOVL(498) P2_crScantidadTeoricaAzucarCurso GESPAN_TeoricoAzucarCurso
+//  Azucar: Peso teórico
+AND=S(302) P2_crScodigoAzucarCurso &0
+MOV(021) &219 GESPAN_IndCodigoAzucarCurso
+//  Azucar: Codigo azúcar curso
+LD TR0
+AND<>S(307) P2_crScodigoAzucarCurso &0
+MOV(021) &227 GESPAN_IndCodigoAzucarCurso
+//  Azucar: Codigo azúcar curso
+LD TR0
++(400) P2_crSEstadoAzucarCurso &232 GESPAN_IndEstadoAzucarCurso
+MOVL(498) P2_crScantidadRealAzucarCurso GESPAN_RealAzucarCurso
++(400) P2_crSEstadoSalCurso &232 GESPAN_IndEstadoSalCurso
+MOVL(498) P2_crScantidadRealSalCurso GESPAN_RealSalCurso
+'  Actualizamos la indicación de Estado de Visor V1
+LD cierto
+OUT TR0
+MOV(021) &270 GESPAN_IndEstVisor1
+ANDTST(350) D180 &0
+MOV(021) &270 GESPAN_IndEstVisor1
+//  Reposo
+LD TR0
+ANDTST(350) D179 &1
+MOV(021) &271 GESPAN_IndEstVisor1
+//  Espera estabilidad inicio
+LD TR0
+ANDTST(350) D179 &2
+MOV(021) &272 GESPAN_IndEstVisor1
+//  Dosificacion
+LD TR0
+ANDTST(350) D179 &3
+MOV(021) &273 GESPAN_IndEstVisor1
+//  Espera estabilidad fin
+LD TR0
+ANDTST(350) D179 &4
+MOV(021) &274 GESPAN_IndEstVisor1
+//  Error máximo superior
+LD TR0
+ANDTST(350) D179 &5
+MOV(021) &275 GESPAN_IndEstVisor1
+//  Error máximo inferior
+LD TR0
+ANDTST(350) D179 &6
+MOV(021) &276 GESPAN_IndEstVisor1
+//  Descarga
+'  Actualizamos la indicación de Estado de Visor V2
+LD cierto
+OUT TR0
+MOV(021) &270 GESPAN_IndEstVisor2
+ANDTST(350) D280 &0
+MOV(021) &270 GESPAN_IndEstVisor2
+//  Reposo
+LD TR0
+ANDTST(350) D279 &1
+MOV(021) &271 GESPAN_IndEstVisor2
+//  Espera estabilidad inicio
+LD TR0
+ANDTST(350) D279 &2
+MOV(021) &272 GESPAN_IndEstVisor2
+//  Dosificacion
+LD TR0
+ANDTST(350) D279 &3
+MOV(021) &273 GESPAN_IndEstVisor2
+//  Espera estabilidad fin
+LD TR0
+ANDTST(350) D279 &4
+MOV(021) &274 GESPAN_IndEstVisor2
+//  Error máximo superior
+LD TR0
+ANDTST(350) D279 &5
+MOV(021) &275 GESPAN_IndEstVisor2
+//  Error máximo inferior
+LD TR0
+ANDTST(350) D279 &6
+MOV(021) &276 GESPAN_IndEstVisor2
+//  Descarga
+'  Actualizamos la indicación de Estado de Visor V3
+LD cierto
+OUT TR0
+MOV(021) &270 GESPAN_IndEstVisor3
+ANDTST(350) D380 &0
+MOV(021) &270 GESPAN_IndEstVisor3
+//  Reposo
+LD TR0
+ANDTST(350) D379 &1
+MOV(021) &271 GESPAN_IndEstVisor3
+//  Espera estabilidad inicio
+LD TR0
+ANDTST(350) D379 &2
+MOV(021) &272 GESPAN_IndEstVisor3
+//  Dosificacion
+LD TR0
+ANDTST(350) D379 &3
+MOV(021) &273 GESPAN_IndEstVisor3
+//  Espera estabilidad fin
+LD TR0
+ANDTST(350) D379 &4
+MOV(021) &274 GESPAN_IndEstVisor3
+//  Error máximo superior
+LD TR0
+ANDTST(350) D379 &5
+MOV(021) &275 GESPAN_IndEstVisor3
+//  Error máximo inferior
+LD TR0
+ANDTST(350) D379 &6
+MOV(021) &276 GESPAN_IndEstVisor3
+//  Descarga
+'  Actualizamos la indicación de Estado de Visor V4
+LD cierto
+OUT TR0
+MOV(021) &270 GESPAN_IndEstVisor4
+ANDTST(350) D480 &0
+MOV(021) &270 GESPAN_IndEstVisor4
+//  Reposo
+LD TR0
+ANDTST(350) D479 &1
+MOV(021) &271 GESPAN_IndEstVisor4
+//  Espera estabilidad inicio
+LD TR0
+ANDTST(350) D479 &2
+MOV(021) &272 GESPAN_IndEstVisor4
+//  Dosificacion
+LD TR0
+ANDTST(350) D479 &3
+MOV(021) &273 GESPAN_IndEstVisor4
+//  Espera estabilidad fin
+LD TR0
+ANDTST(350) D479 &4
+MOV(021) &274 GESPAN_IndEstVisor4
+//  Error máximo superior
+LD TR0
+ANDTST(350) D479 &5
+MOV(021) &275 GESPAN_IndEstVisor4
+//  Error máximo inferior
+LD TR0
+ANDTST(350) D479 &6
+MOV(021) &276 GESPAN_IndEstVisor4
+//  Descarga
+'  Actualizamos la indicación de Estado de Visor V5
+LD cierto
+OUT TR0
+MOV(021) &270 GESPAN_IndEstVisor5
+ANDTST(350) D580 &0
+MOV(021) &270 GESPAN_IndEstVisor5
+//  Reposo
+LD TR0
+ANDTST(350) D579 &1
+MOV(021) &271 GESPAN_IndEstVisor5
+//  Espera estabilidad inicio
+LD TR0
+ANDTST(350) D579 &2
+MOV(021) &272 GESPAN_IndEstVisor5
+//  Dosificacion
+LD TR0
+ANDTST(350) D579 &3
+MOV(021) &273 GESPAN_IndEstVisor5
+//  Espera estabilidad fin
+LD TR0
+ANDTST(350) D579 &4
+MOV(021) &274 GESPAN_IndEstVisor5
+//  Error máximo superior
+LD TR0
+ANDTST(350) D579 &5
+MOV(021) &275 GESPAN_IndEstVisor5
+//  Error máximo inferior
+LD TR0
+ANDTST(350) D579 &6
+MOV(021) &276 GESPAN_IndEstVisor5
+//  Descarga
+'  Actualizamos la indicación de Estado de Visor V8
+LD cierto
+OUT TR0
+MOV(021) &270 GESPAN_IndEstVisor8
+ANDTST(350) D880 &0
+MOV(021) &270 GESPAN_IndEstVisor8
+//  Reposo
+LD TR0
+ANDTST(350) D879 &1
+MOV(021) &271 GESPAN_IndEstVisor8
+//  Espera estabilidad inicio
+LD TR0
+ANDTST(350) D879 &2
+MOV(021) &272 GESPAN_IndEstVisor8
+//  Dosificacion
+LD TR0
+ANDTST(350) D879 &3
+MOV(021) &273 GESPAN_IndEstVisor8
+//  Espera estabilidad fin
+LD TR0
+ANDTST(350) D879 &4
+MOV(021) &274 GESPAN_IndEstVisor8
+//  Error máximo superior
+LD TR0
+ANDTST(350) D879 &5
+MOV(021) &275 GESPAN_IndEstVisor8
+//  Error máximo inferior
+LD TR0
+ANDTST(350) D879 &6
+MOV(021) &276 GESPAN_IndEstVisor8
+//  Descarga
+'  GESTIÓN DEL PASSWORD
+LD=(300) GESPAN_PantallaCurso &29
+//  Si no hay password definido de encargado ni administrador saltamos la pantalla
+OR=(300) GESPAN_PantallaCurso &79
+OR=(300) GESPAN_PantallaCurso &39
+OR=(300) GESPAN_PantallaCurso &49
+AND=(300) GESPAN_PasswordAdministrador &0
+AND=(300) GESPAN_PasswordEncargado &0
+++(590) GESPAN_PantallaCurso
+LD=(300) GESPAN_PantallaCurso &29
+//  Pantalla de petición de password para entrada en edición de recetas
+LD=(300) GESPAN_PasswordAdministrador GESPAN_PasswordIntroducido
+OR=(300) GESPAN_PasswordEncargado GESPAN_PasswordIntroducido
+AND VIR_I_PGConfirmarPassword
+LD=(300) GESPAN_PasswordEncargado &0
+AND<>(305) GESPAN_PasswordAdministrador &0
+ORLD
+ANDLD
+++(590) GESPAN_PantallaCurso
+MOV(021) &0 GESPAN_PasswordIntroducido
+LD=(300) GESPAN_PantallaCurso &79
+//  Pantalla de petición de password para entrada en configuracion visores
+AND=(300) GESPAN_PasswordAdministrador GESPAN_PasswordIntroducido
+AND VIR_I_PGConfirmarPassword
+++(590) GESPAN_PantallaCurso
+MOV(021) &0 GESPAN_PasswordIntroducido
+LD=(300) GESPAN_PantallaCurso &39
+//  Pantalla de petición de password para configuraciones generales
+AND=(300) GESPAN_PasswordAdministrador GESPAN_PasswordIntroducido
+AND VIR_I_PGConfirmarPassword
+++(590) GESPAN_PantallaCurso
+MOV(021) &0 GESPAN_PasswordIntroducido
+LD=(300) GESPAN_PantallaCurso &49
+//  Pantalla de petición de password para entrada colas y errores
+LD=(300) GESPAN_PasswordAdministrador GESPAN_PasswordIntroducido
+OR=(300) GESPAN_PasswordEncargado GESPAN_PasswordIntroducido
+AND VIR_I_PGConfirmarPassword
+LD=(300) GESPAN_PasswordEncargado &0
+AND<>(305) GESPAN_PasswordAdministrador &0
+ORLD
+ANDLD
+++(590) GESPAN_PantallaCurso
+MOV(021) &0 GESPAN_PasswordIntroducido
+LD=(300) GESPAN_PantallaCurso &8
+//  Pantalla de petición de password para entrada en configuracion visores
+LD=(300) GESPAN_PasswordAdministrador GESPAN_PasswordIntroducido
+OR=(300) GESPAN_PasswordEncargado GESPAN_PasswordIntroducido
+ANDLD
+AND VIR_I_PGConfirmarPassword
+MOV(021) &1 GESPAN_PantallaCurso
+MOV(021) &0 GESPAN_PasswordIntroducido
+'  PANTALLA PASSWORD PARA  CONTROL PESOS SILOS
+LD=(300) GESPAN_PantallaCurso &112
+//  Pantalla de petición de password para configuraciones generales
+AND=(300) &2020 GESPAN_PasswordIntroducido
+AND VIR_I_PGConfirmarPassword
+++(590) GESPAN_PantallaCurso
+MOV(021) &0 GESPAN_PasswordIntroducido
+'  PANTALLA PASSWORD PARA  GBCONNECTED
+LD=(300) GESPAN_PantallaCurso &16
+//  Pantalla de petición de password para configuraciones generales
+AND=(300) &4973 D16092
+AND H505.04
+++(590) GESPAN_PantallaCurso
+MOV(021) &0 D16092
+'  
+LD=(300) GESPAN_PantallaCurso &129
+//  
+AND=(300) &1525 D16095
+AND H505.05
+++(590) GESPAN_PantallaCurso
+MOV(021) &0 D16095
+LD=(300) GESPAN_EstadoRecetaCurso #EA
+OUT W30.00
+@LD W30.00
+OUT TR0
+AND=(300) GESPAN_DescripcionRecetaCurso #DD
++L(401) D12100 P1_crSbasecantidadreal D12100
+LD TR0
+AND=(300) GESPAN_DescripcionRecetaCurso #DE
++L(401) D12102 P1_crSbasecantidadreal D12102
+LD TR0
+AND=(300) GESPAN_DescripcionRecetaCurso #DF
++L(401) D12104 P1_crSbasecantidadreal D12104
+LD TR0
+AND=(300) GESPAN_DescripcionRecetaCurso #E0
++L(401) D12106 P1_crSbasecantidadreal D12106
+LD TR0
+AND=(300) GESPAN_DescripcionRecetaCurso #E1
++L(401) D12108 P1_crSbasecantidadreal D12108
+LD TR0
+AND=(300) GESPAN_DescripcionRecetaCurso #E2
++L(401) D12110 P1_crSbasecantidadreal D12110
+'  
+LD=(300) D7021 #EA
+OUT W30.01
+'  
+@LD W30.01
+OUT TR0
+AND=(300) D7001 #DD
++L(401) D12100 D2366 D12100
+LD TR0
+AND=(300) D7001 #DE
++L(401) D12102 D2366 D12102
+LD TR0
+AND=(300) D7001 #DF
++L(401) D12104 D2366 D12104
+LD TR0
+AND=(300) D7001 #E0
++L(401) D12106 D2366 D12106
+LD TR0
+AND=(300) D7001 #E1
++L(401) D12108 D2366 D12108
+LD TR0
+AND=(300) D7001 #E2
++L(401) D12110 D2366 D12110
+'  
+LD=(300) D7022 #EA
+OUT W30.02
+'  
+@LD W30.02
+OUT TR0
+AND=(300) D7002 #DD
++L(401) D12100 D2368 D12100
+LD TR0
+AND=(300) D7002 #DE
++L(401) D12102 D2368 D12102
+LD TR0
+AND=(300) D7002 #DF
++L(401) D12104 D2368 D12104
+LD TR0
+AND=(300) D7002 #E0
++L(401) D12106 D2368 D12106
+LD TR0
+AND=(300) D7002 #E1
++L(401) D12108 D2368 D12108
+LD TR0
+AND=(300) D7002 #E2
++L(401) D12110 D2368 D12110
+'  
+LD=(300) D7023 #EA
+OUT W30.03
+'  
+@LD W30.03
+OUT TR0
+AND=(300) D7003 #DD
++L(401) D12100 D2370 D12100
+LD TR0
+AND=(300) D7003 #DE
++L(401) D12102 D2370 D12102
+LD TR0
+AND=(300) D7003 #DF
++L(401) D12104 D2370 D12104
+LD TR0
+AND=(300) D7003 #E0
++L(401) D12106 D2370 D12106
+LD TR0
+AND=(300) D7003 #E1
++L(401) D12108 D2370 D12108
+LD TR0
+AND=(300) D7003 #E2
++L(401) D12110 D2370 D12110
+'  
+LD=(300) D7024 #EA
+OUT W30.04
+'  
+@LD W30.04
+OUT TR0
+AND=(300) D7004 #DD
++L(401) D12100 D2372 D12100
+LD TR0
+AND=(300) D7004 #DE
++L(401) D12102 D2372 D12102
+LD TR0
+AND=(300) D7004 #DF
++L(401) D12104 D2372 D12104
+LD TR0
+AND=(300) D7004 #E0
++L(401) D12106 D2372 D12106
+LD TR0
+AND=(300) D7004 #E1
++L(401) D12108 D2372 D12108
+LD TR0
+AND=(300) D7004 #E2
++L(401) D12110 D2372 D12110
+'  
+LD=(300) D7025 #EA
+OUT W30.05
+'  
+@LD W30.05
+OUT TR0
+AND=(300) D7005 #DD
++L(401) D12100 D2374 D12100
+LD TR0
+AND=(300) D7005 #DE
++L(401) D12102 D2374 D12102
+LD TR0
+AND=(300) D7005 #DF
++L(401) D12104 D2374 D12104
+LD TR0
+AND=(300) D7005 #E0
++L(401) D12106 D2374 D12106
+LD TR0
+AND=(300) D7005 #E1
++L(401) D12108 D2374 D12108
+LD TR0
+AND=(300) D7005 #E2
++L(401) D12110 D2374 D12110
+'  
+LD=(300) D7026 #EA
+OUT W30.06
+'  
+@LD W30.06
+OUT TR0
+AND=(300) D7006 #DD
++L(401) D12100 D2376 D12100
+LD TR0
+AND=(300) D7006 #DE
++L(401) D12102 D2376 D12102
+LD TR0
+AND=(300) D7006 #DF
++L(401) D12104 D2376 D12104
+LD TR0
+AND=(300) D7006 #E0
++L(401) D12106 D2376 D12106
+LD TR0
+AND=(300) D7006 #E1
++L(401) D12108 D2376 D12108
+LD TR0
+AND=(300) D7006 #E2
++L(401) D12110 D2376 D12110
+'  
+LD=(300) GESPAN_IndEstadoAzucarCurso #EA
+OUT W30.07
+'  
+@LD W30.07
+OUT TR0
+AND=(300) D7007 #E3
++L(401) D12112 GESPAN_RealAzucarCurso D12112
+LD TR0
+AND=(300) D7007 #E4
++L(401) D12114 GESPAN_RealAzucarCurso D12114
+'  
+LD=(300) GESPAN_IndEstadoSalCurso #EA
+OUT W30.08
+'  
+@LD W30.08
+OUT TR0
+AND=(300) D7008 #E3
++L(401) D12112 GESPAN_RealSalCurso D12112
+LD TR0
+AND=(300) D7008 #E4
++L(401) D12114 GESPAN_RealSalCurso D12114
+'  
+LD=(300) GESPAN_EstadoAceiteCurso #EA
+OUT W30.09
+'  
+@LD W30.09
+AND=(300) GESPAN_IndCodigoAceiteCurso #E6
++L(401) D12116 GESPAN_RealAceiteCurso D12116
+'  
+LD=(300) GESPAN_EstadoSalmorraCurso #EA
+OUT W30.10
+'  
+@LD W30.10
+AND=(300) GESPAN_IndCodigoSalmueraCurso #E7
++L(401) D12118 GESPAN_RealSalmueraCurso D12118
+'  
+LD W30.14
+TIM 0030 #30
+@LD T0030
+BSET(071) &0 D12100 D12119

@@ -1,0 +1,267 @@
+'  ALARMAS ZONA ACEITE
+LD<>(305) W460 &0
+//  Comprobamos si hay alguna alarma activa en la Zona Aceite
+OUT A_ZA_AlarmaActiva
+LD>(320) W460 ZA_ALARMAS_W460
+//  Comprobamos si hay alguna alarma nueva en al Zona Aceite
+SET A_ZA_AlarmaPorConfirmar
+@LD I_PGRESETLINEAS
+//  Activado el pulsador de confirmación de alarma de Zona Aceite
+OR VIR_I_PGConfirmarAlarmaLineas
+RSET A_ZA_AlarmaPorConfirmar
+LD cierto
+//  Guardamos estado actual alarmas de Zona Aceite
+MOV(021) W460 ZA_ALARMAS_W460
+LD<>(305) W460 &0
+//  Activamos temporizador si hay alguna alarma activa en la Zona Aceite 
+TIM 1820 TEM_ZA_ALARMAACTIVA
+LD A_ZA_AlarmaActiva
+//  Activamos los indicadores de alarma
+AND TIM_ZA_AlarmaActiva
+LD A_ZA_AlarmaPorConfirmar
+AND P_1s
+ORNOT A_ZA_AlarmaPorConfirmar
+ANDLD
+OUT A_ZA_VirtualAlarmaActiva
+OUT ZA_PET_O_IALINEAS
+'  ALARMAS ZONA SALMORRA
+LD<>(305) ZS_ALARMAS_W495 &0
+//  Comprobamos si hay alguna alarma activa en la Zona Salmuera
+OUT A_ZS_AlarmaActiva
+'  Activa el texto de alarma en pantalla carga salmuera, controlada por tiempo
+LD H11.15
+OUT W495.06
+OUT W495.07
+LD>(320) W495 ZS_ALARMAS_W495
+//  Comprobamos si hay alguna alarma nueva en al Zona Salmuera
+SET A_ZS_AlarmaPorConfirmar
+@LD I_PGRESETLINEAS
+//  Activado el pulsador de confirmación de alarma de Zona Salmorra
+OR VIR_I_PGConfirmarAlarmaLineas
+RSET A_ZS_AlarmaPorConfirmar
+LD cierto
+//  Guardamos estado actual alarmas de Zona Aceite
+MOV(021) W495 ZS_ALARMAS_W495
+LD<>(305) W495 &0
+//  Activamos temporizador si hay alguna alarma activa en la Zona Aceite
+TIM 2502 TEM_ZS_ALARMAALACTIVA
+LD A_ZS_AlarmaActiva
+//  Activamos los indicadores de alarma
+AND TIM_ZS_AlarmaActiva
+LD A_ZS_AlarmaPorConfirmar
+AND P_1s
+ORNOT A_ZS_AlarmaPorConfirmar
+ANDLD
+OUT A_ZS_VirtualAlarmaActiva
+OUT ZS_PET_O_IALINEAS
+'  ALARMAS ZONA PULMON INTEGRAL
+LD<>(305) W465 &0
+//  Comprobamos si hay alguna alarma activa en la Zona Pulmon Integral
+OR<>(305) W466 &0
+OUT A_ZPI_AlarmaActiva
+LD>(320) W465 ZPI_ALARMAS_W465
+//  Comprobamos si hay alguna alarma nueva en al Zona Pulmon Integral
+OR>(320) W466 ZPI_ALARMAS_W466
+AND P_Off
+SET A_ZPI_AlarmaPorConfirmar
+@LD I_PGRESETLINEAS
+//  Activado el pulsador de confirmación de alarma de Zona Pulmon Integral
+OR VIR_I_PGConfirmarAlarmaLineas
+RSET A_ZPI_AlarmaPorConfirmar
+LD cierto
+//  Guardamos estado actual alarmas de Zona Aceite
+MOV(021) W465 ZPI_ALARMAS_W465
+MOV(021) W466 ZPI_ALARMAS_W466
+LD<>(305) W465 &0
+//  Activamos temporizador si hay alguna alarma activa en la Zona Pulmon Integral
+OR<>(305) W466 &0
+TIM 1821 TEM_ZPI_AlarmaActiva
+LD A_ZPI_AlarmaActiva
+//  Activamos los indicadores de alarma
+AND TIM_ZPI_AlarmaActiva
+LD A_ZPI_AlarmaPorConfirmar
+AND P_1s
+ORNOT A_ZPI_AlarmaPorConfirmar
+ANDLD
+OUT ZPI_PET_O_IALINEAS
+OUT A_ZPI_VirtualAlarmaActiva
+'  ALARMAS ZONA SC2
+LD<>(305) W485 &0
+//  Comprobamos si hay alguna alarma activa en la Zona SC2
+OR<>(305) W486 &0
+OR<>(305) W487 &0
+OR<>(305) W488 &0
+OR<>(305) W489 &0
+OR<>(305) W490 &0
+OR<>(305) W491 &0
+OR<>(305) W492 &0
+OR<>(305) W493 &0
+OR<>(305) W300 &0
+OUT A_ZSC2_AlarmaActiva
+LD>(320) W485 ZSC2_ALARMAS_W485
+//  Comprobamos si hay alguna alarma nueva en al Zona SC2
+OR>(320) W486 ZSC2_ALARMAS_W486
+OR>(320) W487 ZSC2_ALARMAS_W487
+OR>(320) W488 ZSC2_ALARMAS_W488
+OR>(320) W489 ZSC2_ALARMAS_W489
+OR>(320) W490 ZSC2_ALARMAS_W490
+OR>(320) W491 D8491
+OR>(320) W492 D8492
+OR>(320) W493 D8493
+OR>(320) W300 ZSC2_ALARMAS_W489
+SET A_ZSC2_AlarmaPorConfirmar
+@LD I_PGRESETLINEAS
+//  Activado el pulsador de confirmación de alarma de Zona SC2
+OR VIR_I_PGConfirmarAlarmaLineas
+RSET A_ZSC2_AlarmaPorConfirmar
+LD cierto
+//  Guardamos estado actual alarmas de Zona SC2
+MOV(021) W485 ZSC2_ALARMAS_W485
+MOV(021) W486 ZSC2_ALARMAS_W486
+MOV(021) W487 ZSC2_ALARMAS_W487
+MOV(021) W488 ZSC2_ALARMAS_W488
+MOV(021) W489 ZSC2_ALARMAS_W489
+MOV(021) W490 ZSC2_ALARMAS_W490
+MOV(021) W491 D8491
+MOV(021) W492 D8492
+MOV(021) W493 D8493
+MOV(021) W300 ZSC2_ALARMAS_W489
+LD A_ZSC2_AlarmaActiva
+TIM 1822 TEM_ZSC2_AlarmaActiva
+LD A_ZSC2_AlarmaActiva
+//  Activamos los indicadores de alarma ZSC2
+AND TIM_ZSC2_AlarmaActiva
+LD A_ZSC2_AlarmaPorConfirmar
+AND P_1s
+ORNOT A_ZSC2_AlarmaPorConfirmar
+ANDLD
+OUT ZSC2_PET_O_IALINEAS
+OUT A_ZSC2_VirtualAlarmaActiva
+'  ALARMAS ZONA CARGA SILOS
+LD<>(305) W463 &0
+//  Comprobamos si hay alguna alarma activa en la Zona CARGA SILOS
+OUT A_ZCS_AlarmaActiva
+LD>(320) W463 ZCS_ALARMAS_W463
+//  Comprobamos si hay alguna alarma nueva en al Zona Carga Silos
+SET A_ZCS_AlarmaPorConfirmar
+@LD I_PGRESETSILOS
+//  Activado el pulsador RESET SILOS de confirmación de alarma de Zona Carga Silos
+OR VIR_I_PGConfirmarAlarmaSilos
+RSET A_ZCS_AlarmaPorConfirmar
+LD cierto
+//  Guardamos estado actual alarmas de Zona Aceite
+MOV(021) W463 ZCS_ALARMAS_W463
+LD<>(305) W463 &0
+//  Comprobamos si hay alguna alarma activa en la Zona Aceite i activamos temporizador
+TIM 1823 TEM_ZCS_AlarmaActiva
+LD A_ZCS_AlarmaActiva
+//  Activamos los indicadores de alarma de ZONA CARGA SILOS
+AND TIM_ZCS_AlarmaActiva
+LD A_ZCS_AlarmaPorConfirmar
+AND P_1s
+ORNOT A_ZCS_AlarmaPorConfirmar
+ANDLD
+OUT TR0
+AND A_ZCS_AlarmaPorConfirmar
+OUT O_IBALARMA
+LD TR0
+OUT ZCS_PET_O_IASILOS
+OUT A_ZCS_VirtualAlarmaActiva
+'  CONTROLES DIRECCIONAMIENTO MÚLTIPLE
+LD A_ZA_AlarmaActiva
+//  Activamos los indicadores de alarma
+AND TIM_ZA_AlarmaActiva
+LD A_ZA_AlarmaPorConfirmar
+AND P_1s
+LDNOT A_ZA_AlarmaPorConfirmar
+ANDNOT A_ZSC2_AlarmaPorConfirmar
+ORLD
+ANDLD
+LD A_ZSC2_AlarmaActiva
+//  Activamos los indicadores de alarma ZSC2
+AND TIM_ZSC2_AlarmaActiva
+LD A_ZSC2_AlarmaPorConfirmar
+AND P_1s
+LDNOT A_ZSC2_AlarmaPorConfirmar
+ANDNOT A_ZA_AlarmaPorConfirmar
+ORLD
+ANDLD
+ORLD
+LD A_ZS_AlarmaActiva
+AND P_1s
+ORLD
+OUT O_IAPAN5000
+LD ZA_PET_O_IALINEAS
+//  Activación piloto alarma de líneas
+OR ZSC2_PET_O_IALINEAS
+OR ZPI_PET_O_IALINEAS
+OR ZS_PET_O_IALINEAS
+OUT O_IALINEAS
+LD A_ZPI_AlarmaActiva
+//  Activamos los indicadores de alarma
+AND TIM_ZPI_AlarmaActiva
+LD A_ZPI_AlarmaPorConfirmar
+AND P_1s
+ORNOT A_ZPI_AlarmaPorConfirmar
+ANDLD
+OUT ZPI_PET_O_IALINEAS
+OUT A_ZPI_VirtualAlarmaActiva
+LD A_ZA_AlarmaActiva
+//  Activamos los indicadores de alarma
+AND TIM_ZA_AlarmaActiva
+LD A_ZA_AlarmaPorConfirmar
+AND P_1s
+LDNOT A_ZA_AlarmaPorConfirmar
+ANDNOT A_ZSC2_AlarmaPorConfirmar
+ANDNOT A_ZPI_AlarmaPorConfirmar
+ORLD
+ANDLD
+LD A_ZSC2_AlarmaActiva
+//  Activamos los indicadores de alarma ZSC2
+AND TIM_ZSC2_AlarmaActiva
+LD A_ZSC2_AlarmaPorConfirmar
+AND P_1s
+LDNOT A_ZSC2_AlarmaPorConfirmar
+ANDNOT A_ZA_AlarmaPorConfirmar
+ANDNOT A_ZPI_AlarmaPorConfirmar
+ORLD
+ANDLD
+ORLD
+LD A_ZPI_AlarmaActiva
+//  Activamos los indicadores de alarma
+AND TIM_ZPI_AlarmaActiva
+LD A_ZPI_AlarmaPorConfirmar
+AND P_1s
+LDNOT A_ZPI_AlarmaPorConfirmar
+ANDNOT A_ZSC2_AlarmaPorConfirmar
+ANDNOT A_ZA_AlarmaPorConfirmar
+ORLD
+ANDLD
+ORLD
+OUT O_IALINEAS
+LD ZCS_PET_O_IASILOS
+//  Activación piloto alarma silos
+OUT O_IASILOS
+'  Chicharra de falta de material
+LD A_ZSC2_FALTAMATCARGAV1
+OR A_ZSC2_FALTAMATCARGAV2
+OR A_ZSC2_FALTAMATCARGAV3
+OR A_ZSC2_FALTAMATCARGAV4
+OR A_ZSC2_FALTAMATCARGAV5
+UP(521)
+SET ZSC2_ALARFALTAMATERIALPORCONFIRMAR
+LD VIR_I_PGConfirmarAlarmaLineas
+LDNOT A_ZSC2_FALTAMATCARGAV1
+ANDNOT A_ZSC2_FALTAMATCARGAV2
+ANDNOT A_ZSC2_FALTAMATCARGAV3
+ANDNOT A_ZSC2_FALTAMATCARGAV4
+ANDNOT A_ZSC2_FALTAMATCARGAV5
+ORLD
+RSET ZSC2_ALARFALTAMATERIALPORCONFIRMAR
+LD ZSC2_ALARFALTAMATERIALPORCONFIRMAR
+AND P_0_2s
+OUT O_IBALARMAMATERIAL
+'  
+LDNOT 20.08
+AND P_0_2s
+OUT 800.00

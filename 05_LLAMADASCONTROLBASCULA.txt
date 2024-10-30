@@ -1,0 +1,323 @@
+'  LLAMADA A CONTROLBASCULA (V1-HARINAS)
+LD CONTROL_CBV1HARINAS
+JMP(004) &500
+'  Preparamos los parámetros para la llamada  de control báscula de V1-HARINAS
+LD cierto
+OUT TR0
+MOV(021) PESO_BASCULAV1 V1_cbEdigitosvisorbajo
+MOV(021) &0 V1_cbEdatavalidsigno
+AND I_CBDATAVALIDV1
++B(404) #1 V1_cbEdatavalidsigno V1_cbEdatavalidsigno
+LD TR0
+ANDNOT I_CBSIGNOV1
++B(404) #2 V1_cbEdatavalidsigno V1_cbEdatavalidsigno
+LD TR0
+AND VIR_I_PGV1SOBREESCALA
++B(404) #4 V1_cbEdatavalidsigno V1_cbEdatavalidsigno
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Traspasamos parametros ENTRADA Y SALIDA de area de almacenaje a area de trabajo
+FOR(512) &82
+LD cierto
+COLL(081) V1_cbEdigitosvisoralto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos cbEdigitosvisoralto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+LD cierto
+SBS(091) 21
+//  Llamada a la función Control Báscula (V1-HARINAS)
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Devolvemos los parametros de SALIDA actualizados por en control de báscula (V1-HARINAS) a la area de almacenamiento.
+FOR(512) &32
+LD cierto
+COLL(081) cbSpesoneto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos V1_cbSpesoneto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+JME(005) &500
+'  LLAMADA A CONTROLBASCULA (V2-AZUCAR SAL).
+LD CONTROL_CBV2AZUCARSAL
+JMP(004) &504
+LD cierto
+OUT TR0
+MOV(021) PESO_BASCULAV2 V2_cbEdigitosvisorbajo
+MOV(021) &0 V2_cbEdatavalidsigno
+AND I_CBDATAVALIDV2
++B(404) #1 V2_cbEdatavalidsigno V2_cbEdatavalidsigno
+LD TR0
+ANDNOT I_CBSIGNOV2
++B(404) #2 V2_cbEdatavalidsigno V2_cbEdatavalidsigno
+LD TR0
+AND VIR_I_PGV2SOBREESCALA
++B(404) #4 V2_cbEdatavalidsigno V2_cbEdatavalidsigno
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Traspasamos parametros ENTRADA Y SALIDA de area de almacenaje a area de trabajo
+FOR(512) &82
+LD cierto
+COLL(081) V2_cbEdigitosvisoralto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos cbEdigitosvisoralto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+LD cierto
+SBS(091) 21
+//  Llamada a la función Control Báscula (V2-AZUCAR SAL)
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Devolvemos los parametros de SALIDA actualizados por en control de báscula (Punto Bolleria (SOLIDOS)) a la area de almacenamiento.
+FOR(512) &32
+LD cierto
+COLL(081) cbSpesoneto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos V2_cbSpesoneto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+JME(005) &504
+'  LLAMADA A CONTROLBASCULA (V3- LIQUIDOS)).
+LD CONTROL_CBV3LIQUIDOS
+JMP(004) &503
+LD cierto
+OUT TR0
+MOV(021) PESO_BASCULAV3 V3_cbEdigitosvisorbajo
+MOV(021) &0 V3_cbEdatavalidsigno
+AND I_CBDATAVALIDV3
++B(404) #1 V3_cbEdatavalidsigno V3_cbEdatavalidsigno
+LD TR0
+ANDNOT I_CBSIGNOV3
++B(404) #2 V3_cbEdatavalidsigno V3_cbEdatavalidsigno
+LD TR0
+AND VIR_I_PGV3SOBREESCALA
++B(404) #4 V3_cbEdatavalidsigno V3_cbEdatavalidsigno
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Traspasamos parametros ENTRADA Y SALIDA de area de almacenaje a area de trabajo
+FOR(512) &82
+LD cierto
+COLL(081) V3_cbEdigitosvisoralto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos cbEdigitosvisoralto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+LD cierto
+SBS(091) 21
+//  Llamada a la función Control Báscula (V3 - LIQUIDOS)
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Devolvemos los parametros de SALIDA actualizados por en control de báscula (V3-LIQUIDOS) a la area de almacenamiento.
+FOR(512) &32
+LD cierto
+COLL(081) cbSpesoneto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos V3_cbSpesoneto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+JME(005) &503
+'  LLAMADA A CONTROLBASCULA (V4-ACEITE).
+LD CONTROL_CBV4ACEITE
+JMP(004) &506
+LD cierto
+MOV(021) #1 V4_cbEdatavalidsigno
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Traspasamos parametros ENTRADA Y SALIDA de area de almacenaje a area de trabajo
+FOR(512) &82
+LD cierto
+COLL(081) V4_cbEdigitosvisoralto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos cbEdigitosvisoralto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+LD cierto
+SBS(091) 21
+//  Llamada a la función Control Báscula (V4-ACEITE)
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Devolvemos los parametros de SALIDA actualizados por en control de báscula (Punto Bolleria (SOLIDOS)) a la area de almacenamiento.
+FOR(512) &32
+LD cierto
+COLL(081) cbSpesoneto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos V4_cbSpesoneto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+JME(005) &506
+'  LLAMADA A CONTROLBASCULA (V5 - INGREDIADOR)).
+LD CONTROL_CBV5INGREDIADOR
+JMP(004) &505
+LD cierto
+MOV(021) #1 V5_cbEdatavalidsigno
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Traspasamos parametros ENTRADA Y SALIDA de area de almacenaje a area de trabajo
+FOR(512) &82
+LD cierto
+COLL(081) V5_cbEdigitosvisoralto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos cbEdigitosvisoralto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+LD cierto
+SBS(091) 21
+//  Llamada a la función Control Báscula (V5-Ingrediador))
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Devolvemos los parametros de SALIDA actualizados por en control de báscula (V5-Ingrediador)) a la area de almacenamiento.
+FOR(512) &32
+LD cierto
+COLL(081) cbSpesoneto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos V5_cbSpesoneto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+JME(005) &505
+'  LLAMADA A CONTROLBASCULA (V6 - S9 INTEGRAL).
+LD CONTROL_CBV6INTEGRAL9
+JMP(004) &501
+LD cierto
+OUT TR0
+MOV(021) PESO_BASCULAV6 V6_cbEdigitosvisorbajo
+MOV(021) &0 V6_cbEdatavalidsigno
+AND I_CBDATAVALIDV6
++B(404) #1 V6_cbEdatavalidsigno V6_cbEdatavalidsigno
+LD TR0
+ANDNOT I_CBSIGNOV6
++B(404) #2 V6_cbEdatavalidsigno V6_cbEdatavalidsigno
+LD TR0
+AND VIR_I_PGV6SOBREESCALA
++B(404) #4 V6_cbEdatavalidsigno V6_cbEdatavalidsigno
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Traspasamos parametros ENTRADA Y SALIDA de area de almacenaje a area de trabajo
+FOR(512) &82
+LD cierto
+COLL(081) V6_cbEdigitosvisoralto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos cbEdigitosvisoralto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+LD cierto
+SBS(091) 21
+//  Llamada a la función Control Báscula (Punto BOLLERIA (ACEITE 1))
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Devolvemos los parametros de SALIDA actualizados por en control de báscula (Punto Bolleria (SOLIDOS)) a la area de almacenamiento.
+FOR(512) &32
+LD cierto
+COLL(081) cbSpesoneto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos V6_cbSpesoneto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+JME(005) &501
+'  LLAMADA A CONTROLBASCULA (V7-INTEGRAL 10 ).
+LD CONTROL_CBV7INTEGRALS10
+JMP(004) &502
+LD cierto
+OUT TR0
+MOV(021) PESO_BASCULAV7 V7_cbEdigitosvisorbajo
+MOV(021) &0 V7_cbEdatavalidsigno
+AND I_CBDATAVALIDV7
++B(404) #1 V7_cbEdatavalidsigno V7_cbEdatavalidsigno
+LD TR0
+ANDNOT I_CBSIGNOV7
++B(404) #2 V7_cbEdatavalidsigno V7_cbEdatavalidsigno
+LD TR0
+AND VIR_I_PGV7SOBREESCALA
++B(404) #4 V7_cbEdatavalidsigno V7_cbEdatavalidsigno
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Traspasamos parametros ENTRADA Y SALIDA de area de almacenaje a area de trabajo
+FOR(512) &82
+LD cierto
+COLL(081) V7_cbEdigitosvisoralto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos cbEdigitosvisoralto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+LD cierto
+SBS(091) 21
+//  Llamada a la función Control Báscula (V7-INTEGRAL 10 ).
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Devolvemos los parametros de SALIDA actualizados por en control de báscula (V7-INTEGRAL 10) a la area de almacenamiento.
+FOR(512) &32
+LD cierto
+COLL(081) cbSpesoneto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos V7_cbSpesoneto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+JME(005) &502
+'  Calculamos la señal de sobreescala temporizada
+LD I_CBSOBREESCALAV1
+//  Sobreescala en visor 1
+TIM 0227 #20
+LDNOT I_CBSOBREESCALAV1
+TIM 0232 #20
+LDNOT VIR_I_PGV1SOBREESCALA
+AND TRA_TIMSOBRESV1
+SET VIR_I_PGV1SOBREESCALA
+LD VIR_I_PGV1SOBREESCALA
+AND TRA_TIMSOBRESV1_DES
+RSET VIR_I_PGV1SOBREESCALA
+LD I_CBSOBREESCALAV2
+//  Sobreescala en visor 2
+TIM 0228 #20
+LDNOT I_CBSOBREESCALAV2
+TIM 0233 #20
+LDNOT VIR_I_PGV2SOBREESCALA
+AND TRA_TIMSOBRESV2
+SET VIR_I_PGV2SOBREESCALA
+LD VIR_I_PGV2SOBREESCALA
+AND TRA_TIMSOBRESV2_DES
+RSET VIR_I_PGV2SOBREESCALA
+LD I_CBSOBREESCALAV3
+//  Sobreescala en visor 3
+TIM 0229 #20
+LDNOT I_CBSOBREESCALAV3
+TIM 0234 #20
+LDNOT VIR_I_PGV3SOBREESCALA
+AND TRA_TIMSOBRESV3
+SET VIR_I_PGV3SOBREESCALA
+LD VIR_I_PGV3SOBREESCALA
+AND TRA_TIMSOBRESV3_DES
+RSET VIR_I_PGV3SOBREESCALA
+LD I_CBSOBREESCALAV6
+//  Sobreescala en visor 6
+TIM 0230 #20
+LDNOT I_CBSOBREESCALAV6
+TIM 0235 #20
+LDNOT VIR_I_PGV6SOBREESCALA
+AND TRA_TIMSOBRESV4
+SET VIR_I_PGV6SOBREESCALA
+LD VIR_I_PGV6SOBREESCALA
+AND TRA_TIMSOBRESV4_DES
+RSET VIR_I_PGV6SOBREESCALA
+LD I_CBSOBREESCALAV7
+//  Sobreescala en  V7
+TIM 0231 #20
+LDNOT I_CBSOBREESCALAV7
+TIM 0236 #20
+LDNOT VIR_I_PGV7SOBREESCALA
+AND TRA_TIMSOBRESV5
+SET VIR_I_PGV7SOBREESCALA
+LD VIR_I_PGV7SOBREESCALA
+AND TRA_TIMSOBRESV5_DES
+RSET VIR_I_PGV7SOBREESCALA
+'  LLAMADA A CONTROLBASCULA (V8-SALMORRA).
+LD CONTROL_CBV8SALMORRA
+JMP(004) &507
+LD cierto
+MOV(021) #1 V8_cbEdatavalidsigno
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Traspasamos parametros ENTRADA Y SALIDA de area de almacenaje a area de trabajo
+FOR(512) &82
+LD cierto
+COLL(081) V8_cbEdigitosvisoralto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos cbEdigitosvisoralto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+LD cierto
+SBS(091) 21
+//  Llamada a la función Control Báscula (V8-SALMUERA)
+LD cierto
+MOV(021) &0 LLCB_AUXcontador
+//  Devolvemos los parametros de SALIDA actualizados por en control de báscula a la area de almacenamiento.
+FOR(512) &32
+LD cierto
+COLL(081) cbSpesoneto LLCB_AUXcontador LLCB_AUXcopiadatos
+DIST(080) LLCB_AUXcopiadatos V8_cbSpesoneto LLCB_AUXcontador
+++(590) LLCB_AUXcontador
+NEXT(513)
+JME(005) &507

@@ -1,0 +1,96 @@
+LD INICIA_GENERAL
+MOV(021) #60 TEM_ZA_ALARMAACTIVA
+//  Temporizadores de mostrar alarmas
+MOV(021) #60 TEM_ZPI_AlarmaActiva
+//  Temporizadores de mostrar alarmas
+MOV(021) #60 TEM_ZSC2_AlarmaActiva
+//  Temporizadores de mostrar alarmas
+MOV(021) #60 TEM_ZCS_AlarmaActiva
+//  Temporizadores de mostrar alarmas
+MOV(021) #1200 TEM_MZPI_PARO_M15
+//  Temporizador de paro de M15
+MOV(021) #450 TEM_MZPI_BARRIDO
+//  Tiempo de barrido de la zona de pulmon integral
+MOV(021) #300 TEM_MZPI_ARRANQUE_VF9_10
+//  Tiempo de arranque de motor de fluidificación VF9_10
+MOV(021) #1200 TEM_MZPI_PARO_VF9_10
+//  Tiempo de paro de motor de fluidificación VF9_10
+MOV(021) #9999 TEM_AZPI_CARGA_PI
+//  Tiempo máximo de carga de pulmón integral
+MOV(021) #1200 TEM_MHSC2_PAROM13
+//  Tiempo de paro de M13
+MOV(021) #0 TEM_MHSC2_BARRIDO
+//  Tiempo de barrido transportes a BT1
+MOV(021) #0 TEM_MHSC2_BARRIDO
+//  Tiempo de barrido transportes a BT1
+MOV(021) #600 TEM_MHSC2_PAROSD1234569_110_1
+//  Tiempo de desconexión de los contactores del variador
+MOV(021) #1200 TEM_MASSC2_PARO_M14
+//  Tiempo de desconexión del motor M14
+MOV(021) #600 TEM_MASSC2_PAROSD7SAL
+MOV(021) #0 TEM_MASSC2_BARRIDO
+//  Tiempo de barrido cargas a BT2
+MOV(021) #0 TEM_MASSC2_BARRIDO
+//  Tiempo de barrido cargas a BT2
+MOV(021) #300 TEM_MASSC2_NivelSAL
+//  Tiempo de alarma falta material en tolva de  sal
+MOV(021) #100 TEM_MDHSC2_ARRANQUE_MVBT1
+//  Tiempo de arranque de motor MVBT1 con válvula cerrada
+MOV(021) #9999 TEM_ZSC2_ALARMASAL
+//  Tiempo máximo para dosificar sal antes de alarma
+MOV(021) #9999 TEM_AZA_ALARMAACEITE
+//  Tiempo máximo para dosificar aceite antes de alarma
+MOV(021) #9999 TEM_AZA_ALARMAACEITE
+//  Tiempo máximo para dosificar aceite antes de alarma
+MOV(021) &600 CONF_C1MAXVALOR
+//  Configuraciones Canal 1
+MOV(021) &0 CONF_C1MINVALOR
+//  Configuraciones Canal 1
+MOV(021) &999 CONF_C1RESMAXVALOR
+//  Configuraciones Canal 1
+MOV(021) &0 CONF_C1RESMINVALOR
+//  Configuraciones Canal 1
+MOV(021) &600 CONF_C2MAXVALOR
+//  Configuraciones Canal 2
+MOV(021) &0 CONF_C2MINVALOR
+//  Configuraciones Canal 2
+MOV(021) &999 CONF_C2RESMAXVALOR
+//  Configuraciones Canal 2
+MOV(021) &0 CONF_C2RESMINVALOR
+//  Configuraciones Canal 2
+MOV(021) &600 CONF_C3MAXVALOR
+//  Configuraciones Canal 3
+MOV(021) &0 CONF_C3MINVALOR
+//  Configuraciones Canal3
+MOV(021) &999 CONF_C3RESMAXVALOR
+//  Configuraciones Canal 3
+MOV(021) &0 CONF_C3RESMINVALOR
+//  Configuraciones Canal 3
+MOV(021) &600 CONF_C4MAXVALOR
+//  Configuraciones Canal 3
+MOV(021) &0 CONF_C4MINVALOR
+//  Configuraciones Canal3
+MOV(021) &999 CONF_C4RESMAXVALOR
+//  Configuraciones Canal 3
+MOV(021) &0 CONF_C4RESMINVALOR
+//  Configuraciones Canal 3
+SET CONTROL_CBV1HARINAS
+SET CONTROL_CBV2AZUCARSAL
+SET CONTROL_CBV3LIQUIDOS
+SET CONTROL_CBV4ACEITE
+SET CONTROL_CBV5INGREDIADOR
+SET CONTROL_CBV6INTEGRAL9
+SET CONTROL_CBV7INTEGRALS10
+SET CONTROL_CBV8SALMORRA
+SET CONTROL_CRV1V3V5
+SET CONTROL_CRV2
+'  Revisa si se ha realizado un forzado de cambio de receta. Esto sucede cuando el operario, introduce un nuevo numero de receta manualmente sin haber terminado la anterior. Es necesario poner el numero de masas a 0, para reiniciar contador de masas
+LDTST(350) D9281 &14
+OR P_On
+OUT TR0
+AND<>(305) PSC2_BaseColaPeticiones D7120
+MOV(021) &0 D7099
+//  Almacenamos los valores en el historico, antes de hacerles Reset
+LD TR0
+MOV(021) PSC2_BaseColaPeticiones D7120
+//  Almacenamos los valores en el historico, antes de hacerles Reset

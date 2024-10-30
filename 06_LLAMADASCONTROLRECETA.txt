@@ -1,0 +1,60 @@
+'  LLAMADA A CONTROLRECETA (V1,V3,V5)
+LD CONTROL_CRV1V3V5
+JMP(004) &9
+'  Preparamos los parámetros para la llamada  de control de receta V1,V3,V5
+LD cierto
+MOV(021) &0 LLCR_AUXcontador
+//  Traspasamos parametros ENTRADA Y SALIDA de area de almacenaje a area de trabajo
+FOR(512) &142
+LD cierto
+COLL(081) P1_crEnumeroreceta LLCR_AUXcontador LLCR_AUXcopiadatos
+DIST(080) LLCR_AUXcopiadatos crEnumeroreceta LLCR_AUXcontador
+++(590) LLCR_AUXcontador
+NEXT(513)
+LD cierto
+SBS(091) 928
+//  Llamada a la función Control Báscula (V1,V3,V5)
+LD cierto
+MOV(021) &0 LLCR_AUXcontador
+//  Devolvemos los parametros de SALIDA actualizados por en control de báscula (V1,V3,V5) a la area de almacenamiento.
+FOR(512) &114
+LD cierto
+COLL(081) crSprimerparametrosalida LLCR_AUXcontador LLCR_AUXcopiadatos
+DIST(080) LLCR_AUXcopiadatos P1_crScicloreceta LLCR_AUXcontador
+++(590) LLCR_AUXcontador
+NEXT(513)
+LD=S(302) P1_crSrecetanula &1
+OUT A_ZSC2_V1V3V5RECETANULA
+JME(005) &9
+'  LLAMADA A CONTROLRECETA (SAL Y AZUCAR)
+LD CONTROL_CRV2
+JMP(004) &10
+'  Preparamos los parámetros para la llamada  de control de receta V2
+LD cierto
+MOV(021) &0 LLCR_AUXcontador
+//  Traspasamos parametros ENTRADA Y SALIDA de area de almacenaje a area de trabajo
+FOR(512) &142
+LD cierto
+COLL(081) P2_crEnumeroreceta LLCR_AUXcontador LLCR_AUXcopiadatos
+DIST(080) LLCR_AUXcopiadatos crEnumeroreceta LLCR_AUXcontador
+++(590) LLCR_AUXcontador
+NEXT(513)
+LD cierto
+SBS(091) 928
+//  Llamada a la función Control Báscula (V2-AZUCAR SAL)
+LD cierto
+MOV(021) &0 LLCR_AUXcontador
+//  Devolvemos los parametros de SALIDA actualizados por en control de báscula (V2 - AZUCAR SAL) a la area de almacenamiento.
+FOR(512) &114
+LD cierto
+COLL(081) crSprimerparametrosalida LLCR_AUXcontador LLCR_AUXcopiadatos
+DIST(080) LLCR_AUXcopiadatos P2_crScicloreceta LLCR_AUXcontador
+++(590) LLCR_AUXcontador
+NEXT(513)
+LD=S(302) P2_crSrecetanula &1
+OUT A_ZSC2_V2RECETANULA
+JME(005) &10
+'  Cuando coincide el número de receta con la de Natural (nº6)  o Natural Integral (nº13) te permite dosificar Vinagre y Aroldo.
+LD=(300) P1_crEnumeroreceta &6
+OR=(300) P1_crEnumeroreceta &13
+OUT 12.06

@@ -1,0 +1,135 @@
+LD INICIA_CONTROLBASCULAV1
+//  Inicialización de parámetros de BÁSCULA HARINAS (Division 0,1Kg)
+BSET(071) &0 V1_cbEdigitosvisoralto D199
+MOVL(498) &50 V1_cbEpesomaterialcarga
+MOV(021) #400 V1_cbEtiempofaltacarga
+MOVL(498) &50 V1_cbEpesomaterialdescarga
+MOV(021) #200 V1_cbEtiempofaltadescarga
+MOVL(498) &4 V1_cbSpesoestabilidad
+MOV(021) #40 V1_cbEtiempoestabilidad
+MOV(021) #5 V1_cbEtiempocortedosificacion
+MOV(021) #200 V1_cbEtiempolimpiezadescarga
+MOVL(498) &4700 V1_cbEpma
+MOVL(498) &50 V1_cbEbasculavacia
+MOV(021) &1 V1_cbEescalado
+MOVL(498) &300 V1_cbEpesoparofiltrodescarga
+MOVL(498) &300 V1_cbEpesoparofiltrocarga
+MOV(021) &0 V1_cbEdecremento
+MOVL(498) &400 V1_cbEdiferenciamaximapesos
+MOV(021) &1 V1_cbEnumerovisor
+RSET INICIA_CONTROLBASCULAV1
+LD INICIA_CONTROLBASCULAV2
+//  Inicialización de parámetros de BÁSCULA AZÚCAR SAL  (Division 0,01Kg)
+BSET(071) &0 V2_cbEdigitosvisoralto D299
+MOVL(498) &50 V2_cbEpesomaterialcarga
+MOV(021) #400 V2_cbEtiempofaltacarga
+MOVL(498) &50 V2_cbEpesomaterialdescarga
+MOV(021) #200 V2_cbEtiempofaltadescarga
+MOV(021) #40 V2_cbEtiempoestabilidad
+MOVL(498) &10 V2_cbSpesoestabilidad
+MOV(021) #5 V2_cbEtiempocortedosificacion
+MOV(021) #200 V2_cbEtiempolimpiezadescarga
+MOVL(498) &9000 V2_cbEpma
+MOVL(498) &50 V2_cbEbasculavacia
+MOV(021) &1 V2_cbEescalado
+MOVL(498) &500 V2_cbEpesoparofiltrodescarga
+MOVL(498) &200 V2_cbEpesoparofiltrocarga
+MOV(021) &0 V2_cbEdecremento
+MOVL(498) &1000 V2_cbEdiferenciamaximapesos
+MOV(021) &2 V2_cbEnumerovisor
+RSET INICIA_CONTROLBASCULAV2
+LD INICIA_CONTROLBASCULAV3
+//  Inicialización de parámetros de BÁSCULA LIQUIDOS (Division 0,1Kg)
+BSET(071) &0 V3_cbEdigitosvisoralto D399
+MOVL(498) &50 V3_cbEpesomaterialcarga
+MOV(021) #400 V3_cbEtiempofaltacarga
+MOVL(498) &50 V3_cbEpesomaterialdescarga
+MOV(021) #200 V3_cbEtiempofaltadescarga
+MOV(021) #40 V3_cbEtiempoestabilidad
+MOVL(498) &4 V3_cbSpesoestabilidad
+MOV(021) #5 V3_cbEtiempocortedosificacion
+MOV(021) #100 V3_cbEtiempolimpiezadescarga
+MOVL(498) &3000 V3_cbEpma
+MOVL(498) &15 V3_cbEbasculavacia
+MOV(021) &1 V3_cbEescalado
+MOV(021) &0 V3_cbEdecremento
+MOVL(498) &100 V3_cbEdiferenciamaximapesos
+MOV(021) &3 V3_cbEnumerovisor
+RSET INICIA_CONTROLBASCULAV3
+LD INICIA_CONTROLBASCULAV4
+//  Inicialización de parámetros de BÁSCULA ACEITE  (Division 0,01Kg)
+BSET(071) &0 V4_cbEdigitosvisoralto D499
+MOVL(498) &50 V4_cbEpesomaterialcarga
+MOV(021) #40 V4_cbEtiempofaltacarga
+MOV(021) #40 V4_cbEtiempoestabilidad
+MOVL(498) &4 V4_cbSpesoestabilidad
+MOV(021) #0 V4_cbEtiempocortedosificacion
+MOVL(498) &30 V4_cbEerrormaximo
+MOVL(498) &3 V4_cbEcola
+MOV(021) &0 V4_cbElento
+MOVL(498) &10000 V4_cbEpma
+MOVL(498) &50 V4_cbEbasculavacia
+MOV(021) &1 V4_cbEescalado
+MOV(021) &0 V4_cbEdecremento
+MOVL(498) &100000 V4_cbEdiferenciamaximapesos
+MOV(021) &4 V4_cbEnumerovisor
+MOVL(498) &92 AZA_ValorPulsoOliva
+MOVL(498) &92 AZA_ValorPulsoGirasol
+RSET INICIA_CONTROLBASCULAV4
+LD INICIA_CONTROLBASCULAV5
+//  Inicialización de parámetros de LIQUIDOS INGREDIADOR  (Division 0,1Kg)
+BSET(071) &0 V5_cbEdigitosvisoralto D599
+MOVL(498) &50 V5_cbEpesomaterialcarga
+MOV(021) #40 V5_cbEtiempofaltacarga
+MOV(021) #40 V5_cbEtiempoestabilidad
+MOVL(498) &4 V5_cbSpesoestabilidad
+MOV(021) #0 V5_cbEtiempocortedosificacion
+MOVL(498) &1000 V5_cbEpma
+MOVL(498) &50 V5_cbEbasculavacia
+//  Báscula vacia se confia para que marque vacia al iniciar.
+MOV(021) &1 V5_cbEescalado
+MOV(021) &0 V5_cbEdecremento
+MOVL(498) &100000 V5_cbEdiferenciamaximapesos
+MOVL(498) &5 V5_cbEnumerovisor
+RSET INICIA_CONTROLBASCULAV5
+LD INICIA_CONTROLBASCULAV6
+//  Inicialización de parámetros de SILO TERCERILLAS 9
+BSET(071) &0 V6_cbEdigitosvisoralto D699
+MOVL(498) &32000 V6_cbEpma
+MOVL(498) &2000 V6_cbEbasculavacia
+//  Báscula vacia se confia para que marque vacia al iniciar.
+MOV(021) &10 V6_cbEescalado
+MOV(021) &0 V6_cbEdecremento
+MOVL(498) &100000 V6_cbEdiferenciamaximapesos
+MOV(021) &6 V6_cbEnumerovisor
+RSET INICIA_CONTROLBASCULAV6
+LD INICIA_CONTROLBASCULAV7
+//  Inicialización de parámetros de  SILO TERCERILLAS 10
+BSET(071) &0 V7_cbEdigitosvisoralto D799
+MOVL(498) &32000 V7_cbEpma
+MOVL(498) &2000 V7_cbEbasculavacia
+//  Báscula vacia se confia para que marque vacia al iniciar.
+MOV(021) &10 V7_cbEescalado
+MOV(021) &0 V7_cbEdecremento
+MOVL(498) &100000 V5_cbEdiferenciamaximapesos
+MOV(021) &7 V7_cbEnumerovisor
+RSET INICIA_CONTROLBASCULAV7
+LD INICIA_CONTROLBASCULAV8
+//  Inicialización de parámetros de BÁSCULA SALMUERA (Division 0,01Kg)
+BSET(071) &0 V8_cbEdigitosvisoralto D899
+MOVL(498) &50 V8_cbEpesomaterialcarga
+MOV(021) #40 V8_cbEtiempofaltacarga
+MOV(021) #40 V8_cbEtiempoestabilidad
+MOVL(498) &4 V8_cbSpesoestabilidad
+MOV(021) #0 V8_cbEtiempocortedosificacion
+MOVL(498) &30 V8_cbEerrormaximo
+MOVL(498) &3 V8_cbEcola
+MOV(021) &0 V8_cbElento
+MOVL(498) &10000 V8_cbEpma
+MOVL(498) &50 V8_cbEbasculavacia
+MOV(021) &1 V8_cbEescalado
+MOV(021) &0 V8_cbEdecremento
+MOVL(498) &100000 V8_cbEdiferenciamaximapesos
+MOV(021) &8 V8_cbEnumerovisor
+MOVL(498) &92 AZS_ValorPulsoSalmuera
+RSET INICIA_CONTROLBASCULAV8

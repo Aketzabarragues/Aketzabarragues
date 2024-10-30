@@ -1,0 +1,2 @@
+'  Final del salto de inicialización del PLC
+JME(005) &401

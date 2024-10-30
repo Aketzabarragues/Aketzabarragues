@@ -1,0 +1,5 @@
+'  No permitimos el arranque del PLC hasta al  cabo de un rato de funcionamiento para evitar que los dispositivos envien datos erroneos
+LD cierto
+TIM 2400 #100
+LD TIM_GENE_ARRANQUEPLC
+JMP(004) &400

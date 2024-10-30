@@ -1,0 +1,256 @@
+'  GRAFO COMUNICACION - Mantenimiento 
+LD cierto
+RSET COMPLC_GCTransicion
+LDNOT COMPLC_GCRecepcionHR
+ANDNOT COMPLC_GCTransmisionHR
+SET COMPLC_GCRecepcionHR
+'  GRAFO COMUNICACION - Transiciones
+LD COMPLC_GCRecepcionHR
+ANDNOT COMPLC_GCTransicion
+OUT TR0
+AND TIM_COMPLC_TOutLectura
+SET COMPLC_GCTransmisionHR
+//  Error de timeout en lectura de HR
+RSET COMPLC_GCRecepcionHR
+SET COMPLC_GCTransicion
+SET COMPLC_ErrorLecturaHR
+//  Indicamos se ha producido error de lectura
+RSET COMPLC_EscritoHR
+MOV(021) &5 COMPLC_WRIHTransNumParam
+//  Pasamos los parametros para la escritura de H511
+MOV(021) &0 COMPLC_WRIHTransNumNode
+MOV(021) #510 COMPLC_WRIHTransNumCanalni
+//  Escribim H510
+MOV(021) #4 COMPLC_WRIHTransNumDigits
+MOV(021) H510 COMPLC_WRIHTransH510
+LD TR0
+AND COMPLC_LeidoHR
+SET COMPLC_GCTransmisionHR
+//  Lectura de HR correcta
+RSET COMPLC_GCRecepcionHR
+SET COMPLC_GCTransicion
+RSET COMPLC_ErrorLecturaHR
+//  Indicamos que no se ha producido error de lectura
+RSET COMPLC_EscritoHR
+MOV(021) &5 COMPLC_WRIHTransNumParam
+MOV(021) &0 COMPLC_WRIHTransNumNode
+MOV(021) #510 COMPLC_WRIHTransNumCanalni
+//  Escribim H510
+MOV(021) #4 COMPLC_WRIHTransNumDigits
+MOV(021) H510 COMPLC_WRIHTransH510
+LD COMPLC_GCTransmisionHR
+ANDNOT COMPLC_GCTransicion
+OUT TR0
+AND TIM_COMPLC_TOutEscriptura
+SET COMPLC_GCRecepcionHR
+//  Error de timeout en escritura de HR
+RSET COMPLC_GCTransmisionHR
+SET COMPLC_GCTransicion
+SET COMPLC_ErrorEscrituraHR
+//  Indicamos se ha producido error de escritura
+RSET COMPLC_LeidoHR
+MOV(021) &4 COMPLC_READHTransNumParam
+MOV(021) &0 COMPLC_READHTransNumNode
+MOV(021) #511 COMPLC_READHTransCanalIni
+//  Indicamos que leemos h511
+MOV(021) #1 COMPLC_READHTransNumCanales
+LD TR0
+AND COMPLC_EscritoHR
+OUT TR0
+SET COMPLC_GCRecepcionHR
+//  Escriptura de HR correcta
+RSET COMPLC_GCTransmisionHR
+SET COMPLC_GCTransicion
+RSET COMPLC_ErrorEscrituraHR
+//  Indicamos que no se ha producido error de escritura
+RSET COMPLC_LeidoHR
+ANDNOT COMPLC_ACTIVIDADCOMUNICA
+SET COMPLC_ACTIVIDADCOMUNICA
+OUT COMPLC_AuxiliarTransicion
+LD TR0
+ANDNOT COMPLC_AuxiliarTransicion
+AND COMPLC_ACTIVIDADCOMUNICA
+RSET COMPLC_ACTIVIDADCOMUNICA
+LD TR0
+BSET(071) #FFFF COMPLC_READHRecNumParam COMPLC_READHRecUltimoCanal
+MOV(021) &4 COMPLC_READHTransNumParam
+MOV(021) &0 COMPLC_READHTransNumNode
+MOV(021) #511 COMPLC_READHTransCanalIni
+//  Indicamos que leemos h511
+MOV(021) #1 COMPLC_READHTransNumCanales
+'  GRAFO COMUNICACION - Estados
+LD COMPLC_GCRecepcionHR
+OUT TR0
+@MOV(021) &0 COMPLC_READHRecNumParam
+@PMCR(260) #1E1 #25A COMPLC_READHTransNumParam COMPLC_READHRecNumParam
+//  Lectura de HR
+AND<>(305) COMPLC_READHRecNumParam &0
+AND=(300) COMPLC_READHRecCodRet #0
+MOV(021) COMPLC_READHRecH511 H511
+//  Compiamos el valor leido a H510
+SET COMPLC_LeidoHR
+LD TR0
+TIM 1840 #50
+LD COMPLC_GCTransmisionHR
+OUT TR0
+@MOV(021) &0 COMPLC_WRIHRecNumParam
+@PMCR(260) #1E1 &612 COMPLC_WRIHTransNumParam COMPLC_WRIHRecNumParam
+//  Escritura de HR
+AND<>(305) COMPLC_WRIHRecNumParam &0
+AND=(300) COMPLC_WRIHRecCodRet #0
+SET COMPLC_EscritoHR
+LD TR0
+TIM 1841 #50
+'  ALARMAS DE COMUNICACIONES
+LD COMPLC_ErrorLecturaHR
+TIM 1842 #20
+LD TIM_COMPLC_AlarmaLectura
+OUT A_COMPLC_ERRORLECTURA
+UP(521)
+MOV(021) &0 H511
+//  Los datos de recepción no se pueden actualizar los inicializamos todos a cero
+LD COMPLC_ErrorEscrituraHR
+TIM 1843 #20
+LD TIM_COMPLC_AlarmaEscritura
+OUT A_COMPLC_ERRORESCRITURA
+'  Si hay error de lectura y escritura al PLC 2001/1durante 30 segundos hacemos un reset de la placa de comunicaciones
+LD A_COMPLC_ERRORLECTURA
+AND A_COMPLC_ERRORESCRITURA
+ANDNOT ResetPlaca
+TIM 1844 #300
+LD TIM_COMPLC_ResetPlaca
+OUT ResetPlaca
+'  Transmitimos las alarmas recibidas
+LD VIR_I_CBALARFLUIDIFICACONS2
+OUT A_ZSC2_FLUDIFICACIONS2
+LD VIR_I_CBALARFLUIDIFICACONS6
+OUT A_ZSC2_FLUDIFICACIONS6
+LD VIR_I_CBALARFLUIDIFICACONS7
+OUT A_ZSC2_FLUDIFICACIONS7
+'  Retarda la lectura de activacion de la EV de descarga de ingredientes
+LD P_On
+LD 5.11
+AND P_Off
+LD O_EAVMBT1
+AND P_Off
+ORLD
+LD SIGUIENTE_MASA
+AND P_Off
+ORLD
+LD MDHSC2_PET_DescargaBT1_AUT
+//  Petición descarga HARINA bascula BT1 en AUTOMATICO
+AND=(300) ZSC2_ESTADO_INSTALACION &2
+ORLD
+ANDLD
+TIM 0055 #0
+'  GB CONNECT\n================================================================\nFIFO de producción.  \n\nD16000 - Trama de la mezcla de los ingredientes. Es una trama en construcción, no apta para enviar\nD16010 - Trama de datos de la Tolva de Ingredientes\nD16020 - Trama de datos de la amasadora\nD16030 - Trama de datos de la tolva de masa debajo de la amasadora\nD16040 - Teoricamente correspondería a las divisoras\nD16050 - Trama de datos -4 masas (para diagnostico)\nD16060 - Trama de datos -5 masas (para diagnostico)
+LD=(300) ZSC2_ESTADO_INSTALACION &2
+@AND T0055
+XFER(070) &10 DATOS_Masa_ANTERIOR5 ASCII_Trama6
+XFER(070) &10 DATOS_Masa_ANTERIOR4 DATOS_Masa_ANTERIOR5
+XFER(070) &10 ASCII_Trama3_TolvaMasaVolcada DATOS_Masa_ANTERIOR4
+XFER(070) &10 DATOS_Masa_ANTERIOR2 ASCII_Trama3_TolvaMasaVolcada
+XFER(070) &10 ASCII_Trama1_EnTolvaIngredientes DATOS_Masa_ANTERIOR2
+SET W90.02
+'  BUSQUEDA DEL CODIGO ORACLE DE LA RECETA:\nEl numero original de receta, viene de un buffer de 10 ubicaciones... desde D16220 a D16229. Si es la ultima masa de la tanda (contador y SP Iguales), se coge la segunda posición del buffer, si no, se cogerá la posición 1 del buffer, \nTambién si se desea una unica masa (SPMasas=1) entonces se usa la posición 1 del buffer\nEl numero de Oracle se almacena en DINT a partir del DM16100\n (Doble "COLL" porque esta en formato DINT)\nPasa el numero oracle obtenido a BCD.\nConvierte los digitos BCD a su equivalente ASCII.
+LD P_On
+OUT TR0
+AND>(320) D16222 &0
+AND<(310) D16222 &50
+AND=(300) D16201 D16211
+//  Es a ultima masade la tanda
+OUT W90.03
+//  Caso siguiente:\n-Numero receta entre 0 y 50.\nY\n(Es la ultima masa de la tanda)\n\nEn tal caso se usará el numero de oracle de la masa Anterior
+*(420) D16222 &2 D16070
+LD TR0
+AND>(320) D16221 &0
+AND<(310) D16221 &50
+LD<>(305) D16201 D16211
+//  Se trata de una masa intermedia. no es la ultima masa
+OR=(300) D16211 &1
+//  Caso de que unicamente se haya pedido una masa (SPMasas=1) 
+ANDLD
+OUT W90.04
+//  Caso siguiente:\n -Numero receta entre 0 y 50.\nY\n(No se trata de la ultima masa de la tanda\no\nCantidad de masas deseadas =1).\nEn tal caso se usará el numero de oracle de la masa actual
+*(420) D16221 &2 D16070
+LD TR0
+COLL(081) OracleNum00 D16070 NumOracleActual
+COLL(081) D16101 D16070 D16073
+BCDL(059) NumOracleActual NumOracleActualBCD
+ASC(086) D16075 #12 ASCII_NumOracle
+ASC(086) D16075 #10 ASCII_NumOracle2
+ASC(086) NumOracleActualBCD #12 ASCII_NumOracle3
+ASC(086) NumOracleActualBCD #10 ASCII_NumOracle4
+'  ENVIA LA PARTE DE LA TRAMA, Relativa al código ORACLE, antes de cualquier cambio:\nVYYYYYYZZWWX\nYYYYYY = Cadena Ascii de 6 caracteres (Solo envia los ultimos 6 caracteres de los 8 que teoricamente conforman el codigo ORACLE, se evita el 00 inicial)\nD16081 --> D16000\nD16082 --> D16001\nD16083 --> D16002\nENVIA CODIGO ORACLE EN ASCII Desde
+LD>(320) PSC2_BaseColaPeticiones &0
+OR P_On
+@AND T0055
+MOV(021) ASCII_NumOracle2 DATOS_Masa_Acual
+MOV(021) ASCII_NumOracle3 D16003
+MOV(021) ASCII_NumOracle4 D16004
+'  SP DE CANTIDAD DE MASAS:\n========================================================================\nTRAMA ASCII:  VYYYYYYZZWWX\nWW = Numero de masas totales (Hexadecimal) deseadas en cadena ASCII \n\nEl MOVde la cantidad de masas se realiza al Descargar Ingredientes. D16211 --> D16006 (Hex a Formato ASCII)
+@LD T0055
+ASC(086) D16211 #10 D16006
+'  CONTADOR DE MASAS INCREMENTAL\n==========================================================\nTRAMA ASCII:  VYYYYYYZZWWX\nZZ = Contador de Masas (Hexadecimal) acumuladas de la receta, en Cadena ASCII\nenvia cantidad (Hexadecimal) en ASCII para enviar en trama. DM16003
+@LD T0055
+ASC(086) D16201 #10 D16005
+'  ENVIA LA TAMA CONSTRUIDA DE D16000(10Words) A D16010 (10Words) \nDesplazamiento artesanal de dos digitos de toda la trama de 12 Bytes, para que la trama empiece por "0" Ascii (30Hex).\nLos Digitos se desplaza de dos en dos, y de forma secuencial desde el DM5, al DM0, y finalmente e enviamos un "0" (31 Hex) Final, como identificador de Linea\nD16005 debe contener el ID de linea (30Hex = 0 Ascii; 31Hex=1Ascii; 32Hex=2; 33Hex=3....)\nLinea num 1: (31Hex) Línea BOLLOS
+LD cierto
+MOV(021) #33 D16015
+MOVD(083) D16006 #210 D16015
+MOVD(083) D16006 #12 D16014
+MOVD(083) D16005 #210 D16014
+MOVD(083) D16005 #12 D16013
+MOVD(083) D16004 #210 D16013
+MOVD(083) D16004 #12 D16012
+MOVD(083) D16003 #210 D16012
+MOVD(083) D16003 #12 D16011
+MOVD(083) DATOS_Masa_Acual #210 D16011
+MOVD(083) DATOS_Masa_Acual #12 ASCII_Trama1_EnTolvaIngredientes
+MOVD(083) #30 #210 ASCII_Trama1_EnTolvaIngredientes
+'  INSERTAR FECHA Y HORA AL FINAL DE LA TRAMA.\nUnicamente para diagnostico. No se envia por el puerto RS2323. Solo queda registrado para ver desde PLC\nAño y Mes: D16007\nDia y Hora: D16008\nMin y seg: D16009
+@LD T0055
+MOV(021) A353 D16017
+MOV(021) A352 D16018
+MOV(021) A351 D16019
+'  Comunicaciones GB Connect\nEnvia 12 Bytes desde D160xx\ntrama ASCII:  VYYYYYYZZWWX\nV= uso futuro. Caracter ASCII\nYYYYYY = Cadena Ascii 6 caracteres Codigo de Receta. Oracle\nZZ = Contador de Masas acumuladas de la receta, en Cadena ASCII\nWW = Numero de masas totales deseadas en cadena ASCII\nX = Numero de Linea en cadena ASCII. 1= Linea Bollo\nELEGIR EN EL COMANDO TXD qué masa enviar:\nD16000 - Es la masa que se está preparando en la tolva superior. Es una trama en construccion que no debe ser usada para enviar. Solo para diagnóstico\nD16010 - Es la trama de la masa que se está dosificando en la tolva de ingrediete. No es una masa finalizada\nD16020 - Es la masa que está dentro de la Amasadora. Desde que se entregan los ingredientes, hasta que se vuelven a dosificar los siguientes ingredientes. Permanece, incluso después de volcar la masa\nD16030 - Es la masa que se acaba de volcar a la tolva de masas debajo de la amasadora
+LD W90.03
+OR W90.04
+AND W90.02
+@AND T0055
+AND A392.05
+TXD(236) ASCII_Trama1_EnTolvaIngredientes #0 &12
+RSET W90.02
+'  Desplazamiento de los registros de contadores de masas realizadas y de SP de masas
+@LD SIGUIENTE_MASA
+MOV(021) D16208 D16209
+MOV(021) D16207 D16208
+MOV(021) D16206 D16207
+MOV(021) D16205 D16206
+MOV(021) D16204 D16205
+MOV(021) D16203 D16204
+MOV(021) D16202 D16203
+MOV(021) D16201 D16202
+MOV(021) D16200 D16201
+'  Desplazamiento de los registros de contadores de SP de masas
+@LD SIGUIENTE_MASA
+MOV(021) D16218 D16219
+MOV(021) D16217 D16218
+MOV(021) D16216 D16217
+MOV(021) D16215 D16216
+MOV(021) D16214 D16215
+MOV(021) D16213 D16214
+MOV(021) D16212 D16213
+MOV(021) D16211 D16212
+MOV(021) D16210 D16211
+'  Desplazamiento de los registros de numero de Oracle
+@LD SIGUIENTE_MASA
+MOV(021) D16228 D16229
+MOV(021) D16227 D16228
+MOV(021) D16226 D16227
+MOV(021) D16225 D16226
+MOV(021) D16224 D16225
+MOV(021) D16223 D16224
+MOV(021) D16222 D16223
+MOV(021) D16221 D16222
+MOV(021) D16220 D16221

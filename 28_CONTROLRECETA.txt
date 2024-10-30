@@ -1,0 +1,725 @@
+SBN(092) 928
+'  EJECUCIÓN INCONDICIONAL
+LD cierto
+//  Calculamos si la receta 'crEnumeroreceta' seleccionada para paso a ejecución és nula.
+-(410) crEnumeroreceta &1 crAUXnumeroreceta
+*(420) &36 crAUXnumeroreceta crAUXdobleauxiliar
+MOV(021) crAUXdobleauxiliar crAUXindireccionesD
+//  ATENCIO PERILL DE OVERFLOW
++(400) crAUXindireccionesD crEdireccionrecetario crAUXdireccionbaserecetacurso
+SET crSrecetanula
+//  Hasta que no se demuestre lo contrario la receta és  nula
+MOV(021) crAUXdireccionbaserecetacurso crAUXindireccionesD
+FOR(512) &12
+LD cierto
+OUT TR0
+AND<>S(307) @crAUXindireccionesD &0
+RSET crSrecetanula
+LD TR0
++(400) crAUXindireccionesD &1 crAUXindireccionesD
+NEXT(513)
+LD cierto
+//  Calculamos si las básculas que intervienen en la receta en curso están vacias
+RSET crAUXvisor1interviene
+RSET crAUXvisor2interviene
+RSET crAUXvisor3interviene
+RSET crAUXvisor4interviene
+RSET crAUXvisor5interviene
+RSET crAUXvisor6interviene
+RSET crAUXvisor7interviene
+MOV(021) &0 crAUXoffset
+FOR(512) &12
+LD cierto
+OUT TR0
+COLL(081) crSbasevisorproducto crAUXoffset crAUXvisordosificacionproducto5
+AND=S(302) crAUXvisordosificacionproducto5 &1
+AND crEvisor1activo
+SET crAUXvisor1interviene
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto5 &2
+AND crEvisor2activo
+SET crAUXvisor2interviene
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto5 &3
+AND crEvisor3activo
+SET crAUXvisor3interviene
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto5 &4
+AND crEvisor4activo
+SET crAUXvisor4interviene
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto5 &5
+AND crEvisor5activo
+SET crAUXvisor5interviene
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto5 &6
+AND crEvisor6activo
+SET crAUXvisor6interviene
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto5 &7
+AND crEvisor7activo
+SET crAUXvisor7interviene
+LD TR0
+++(590) crAUXoffset
+NEXT(513)
+LD cierto
+LD crAUXvisor1interviene
+AND=S(302) V1_cbSbasculavacia &0
+LD crAUXvisor2interviene
+AND=S(302) V2_cbSbasculavacia &0
+ORLD
+LD crAUXvisor3interviene
+AND=S(302) V3_cbSbasculavacia &0
+ORLD
+LD crAUXvisor4interviene
+AND=S(302) V4_cbSbasculavacia &0
+ORLD
+LD crAUXvisor5interviene
+AND=S(302) V5_cbSbasculavacia &0
+ORLD
+LD crAUXvisor6interviene
+AND=S(302) V6_cbSbasculavacia &0
+ORLD
+LD crAUXvisor7interviene
+AND=S(302) V7_cbSbasculavacia &0
+ORLD
+ANDLD
+OUTNOT crSbasculasrecetavacias
+LD cierto
+//  Cálculo de fin de ciclo de las recetas en curso
+LD crAUXvisor1interviene
+AND=S(302) V1_cbSciclodosificacion &1
+LD crAUXvisor2interviene
+AND=S(302) V2_cbSciclodosificacion &1
+ORLD
+LD crAUXvisor3interviene
+AND=S(302) V3_cbSciclodosificacion &1
+ORLD
+LD crAUXvisor4interviene
+AND=S(302) V4_cbSciclodosificacion &1
+ORLD
+LD crAUXvisor5interviene
+AND=S(302) V5_cbSciclodosificacion &1
+ORLD
+LD crAUXvisor6interviene
+AND=S(302) V6_cbSciclodosificacion &1
+ORLD
+LD crAUXvisor7interviene
+AND=S(302) V7_cbSciclodosificacion &1
+ORLD
+ANDLD
+OUTNOT crSbasculasfinciclo
+LD crEordendescargavisor1
+OR crEordendescargavisor2
+OR crEordendescargavisor3
+OR crEordendescargavisor4
+OR crEordendescargavisor5
+OR crEordendescargavisor6
+OR crEordendescargavisor7
+OUT crAUXordendescargareceta
+'  CONTROL RECETA: Grafo Transiciones
+LD CR_GRAFOREPOSO
+//  Condiciones de transición REPOSO a COMPROVACION
+ANDNOT CR_GRAFOTRANSICION
+AND crEordenpreparacionreceta
+ANDNOT crSrecetanula
+SET CR_GRAFOCOMPROVACION
+RSET CR_GRAFOREPOSO
+SET CR_GRAFOTRANSICION
+SET CR_GRAFOTRANSICIONREPOSOCOMPROVACION
+LD CR_GRAFOTRANSICIONREPOSOCOMPROVACION
+//  Acción a realizar durante la transicion de REPOSOa COMPROVACION
+MOV(021) &0 crAUXoffset
+//  Copiamos la receta del recetario a receta en curso
+MOV(021) crAUXdireccionbaserecetacurso crAUXindireccionesD
+FOR(512) &36
+LD CR_GRAFOTRANSICIONREPOSOCOMPROVACION
+COLL(081) @crAUXindireccionesD crAUXoffset crAUXenterosignocopia
+DIST(080) crAUXenterosignocopia crSbasecodigoproducto crAUXoffset
+++(590) crAUXoffset
+NEXT(513)
+LD CR_GRAFOTRANSICIONREPOSOCOMPROVACION
+MOV(021) &0 crAUXoffset
+//  Inicializamos a zero los campos 'visor' , 'cantidad dosificada' y 'dosificado' del visor
+FOR(512) &48
+LD CR_GRAFOTRANSICIONREPOSOCOMPROVACION
+DIST(080) &0 crSbasevisorproducto crAUXoffset
+++(590) crAUXoffset
+NEXT(513)
+LD CR_GRAFOTRANSICIONREPOSOCOMPROVACION
+MOV(021) &0 crAUXoffset
+//  Inicializamos el campo visor con el número de visor donde se realiza la dosificación del producto en si.
+FOR(512) &12
+LD CR_GRAFOTRANSICIONREPOSOCOMPROVACION
+OUT TR0
+MOV(021) crEdireccionproductovisor crAUXindireccionesD
+COLL(081) crSbasecodigoproducto crAUXoffset crAUXcodigoproducto1
+AND<>S(307) &0 crAUXcodigoproducto1
+-(410) crAUXcodigoproducto1 &1 crAUXcodigoproducto1
+COLL(081) @crAUXindireccionesD crAUXcodigoproducto1 crAUXvisordosificacionproducto1
+//   crEdireccionproductovisor
+DIST(080) crAUXvisordosificacionproducto1 crSbasevisorproducto crAUXoffset
+LD TR0
+++(590) crAUXoffset
+NEXT(513)
+LD CR_GRAFOTRANSICIONREPOSOCOMPROVACION
+//  Indicamos que el número de receta que estamos ejecutando és la que estava indicada como receta a ejecutar
+MOV(021) crEnumeroreceta crSnumerorecetacurso
+RSET crAUXfinaldescargavisor1
+RSET crAUXfinaldescargavisor2
+RSET crAUXfinaldescargavisor3
+RSET crAUXfinaldescargavisor4
+RSET crAUXfinaldescargavisor5
+RSET CR_GRAFOTRANSICIONREPOSOCOMPROVACION
+//  Han acabado las operaciones de transición
+LD CR_GRAFOCOMPROVACION
+//  Condiciones de transición COMPROVACION a CARGA
+ANDNOT CR_GRAFOTRANSICION
+OUT TR0
+AND crEordenpreparacionreceta
+LD crSbasculasrecetavacias
+ORNOT crEcomprovarbasculavacia
+ANDLD
+SET CR_GRAFOCARGA
+RSET CR_GRAFOCOMPROVACION
+SET CR_GRAFOTRANSICION
+SET CR_GRAFOTRANSICIONCOMPROVACIONCARGA
+LD TR0
+ANDNOT crEordenpreparacionreceta
+SET CR_GRAFOREPOSO
+RSET CR_GRAFOCOMPROVACION
+SET CR_GRAFOTRANSICION
+LD CR_GRAFOTRANSICIONCOMPROVACIONCARGA
+//  Acciones de la transición COMPROVACION a CARGA
+SET crScicloreceta
+RSET CR_GRAFOTRANSICIONCOMPROVACIONCARGA
+LD CR_GRAFOCARGA
+//  Condiciones de transiciones CARGA a ESPERACARGA y de CARGA a ESPERADESCARGA
+ANDNOT CR_GRAFOTRANSICION
+OUT TR0
+ANDNOT crEordenpreparacionreceta
+ANDNOT crSrecetacargada
+SET CR_GRAFOESPERACARGA
+RSET CR_GRAFOCARGA
+SET CR_GRAFOTRANSICION
+LD TR0
+AND crSrecetacargada
+SET CR_GRAFOESPERADESCARGA
+RSET CR_GRAFOCARGA
+SET CR_GRAFOTRANSICION
+LD CR_GRAFOESPERACARGA
+//  Condiciones de transiciones ESPERACARGA a CARGA
+ANDNOT CR_GRAFOTRANSICION
+AND crEordenpreparacionreceta
+SET CR_GRAFOCARGA
+RSET CR_GRAFOESPERACARGA
+SET CR_GRAFOTRANSICION
+LD CR_GRAFOESPERADESCARGA
+//  Condiciones de transiciones ESPERADESCARGA a DESCARGA
+ANDNOT CR_GRAFOTRANSICION
+OUT TR0
+AND crEcomprovarbasculavacia
+AND crAUXordendescargareceta
+SET CR_GRAFODESCARGA
+RSET CR_GRAFOESPERADESCARGA
+SET CR_GRAFOTRANSICION
+SET crAUXtransicionadescarga
+LD TR0
+ANDNOT crEcomprovarbasculavacia
+SET CR_GRAFOREPOSO
+RSET CR_GRAFOESPERADESCARGA
+SET CR_GRAFOTRANSICION
+LD CR_GRAFODESCARGA
+//  Condiciones de transiciones DESCARGA a ESPERADESCARGA y DESCARGA a REPOSO
+ANDNOT CR_GRAFOTRANSICION
+OUT TR0
+AND crSbasculasfinciclo
+SET CR_GRAFOREPOSO
+RSET CR_GRAFODESCARGA
+SET CR_GRAFOTRANSICION
+SET CR_GRAFOTRANSICIONSALIDADESCARGA
+LD TR0
+ANDNOT crAUXordendescargareceta
+SET CR_GRAFOESPERADESCARGA
+RSET CR_GRAFODESCARGA
+SET CR_GRAFOTRANSICION
+SET CR_GRAFOTRANSICIONSALIDADESCARGA
+LD crEordenabortarreceta
+//  Si se activa abortar receta saltamos directamente al estado de reposo
+RSET CR_GRAFOCOMPROVACION
+RSET CR_GRAFOCARGA
+RSET CR_GRAFOESPERACARGA
+RSET CR_GRAFODESCARGA
+RSET CR_GRAFOESPERADESCARGA
+SET CR_GRAFOREPOSO
+LD cierto
+RSET CR_GRAFOTRANSICION
+LDNOT CR_GRAFOREPOSO
+ANDNOT CR_GRAFOCOMPROVACION
+ANDNOT CR_GRAFOCARGA
+ANDNOT CR_GRAFOESPERACARGA
+ANDNOT CR_GRAFOESPERADESCARGA
+ANDNOT CR_GRAFODESCARGA
+SET CR_GRAFOREPOSO
+'  CONTROL RECETA: Grafo Estados
+LD CR_GRAFOREPOSO
+OUT TR0
+RSET crScicloreceta
+RSET crSrecetacargada
+AND crEvisor1activo
+OUT TR1
+MOV(021) &0 V1_cbEordendescargar
+MOV(021) &0 V1_cbEordendosificar
+AND=S(302) V1_cbSciclodosificacion &1
+MOV(021) &1 V1_cbEordenabortar
+LD TR1
+AND=S(302) V1_cbSciclodosificacion &0
+MOV(021) &0 V1_cbEordenabortar
+LD TR0
+AND crEvisor2activo
+OUT TR1
+MOV(021) &0 V2_cbEordendescargar
+MOV(021) &0 V2_cbEordendosificar
+AND=S(302) V2_cbSciclodosificacion &1
+MOV(021) &1 V2_cbEordenabortar
+LD TR1
+AND=S(302) V2_cbSciclodosificacion &0
+MOV(021) &0 V2_cbEordenabortar
+LD TR0
+AND crEvisor3activo
+OUT TR1
+MOV(021) &0 V3_cbEordendescargar
+MOV(021) &0 V3_cbEordendosificar
+AND=S(302) V3_cbSciclodosificacion &1
+MOV(021) &1 V3_cbEordenabortar
+LD TR1
+AND=S(302) V3_cbSciclodosificacion &0
+MOV(021) &0 V3_cbEordenabortar
+LD TR0
+AND crEvisor4activo
+OUT TR1
+MOV(021) &0 V4_cbEordendescargar
+MOV(021) &0 V4_cbEordendosificar
+AND=S(302) V4_cbSciclodosificacion &1
+MOV(021) &1 V4_cbEordenabortar
+LD TR1
+AND=S(302) V4_cbSciclodosificacion &0
+MOV(021) &0 V4_cbEordenabortar
+LD TR0
+AND crEvisor5activo
+OUT TR1
+MOV(021) &0 V5_cbEordendescargar
+MOV(021) &0 V5_cbEordendosificar
+AND=S(302) V5_cbSciclodosificacion &1
+MOV(021) &1 V5_cbEordenabortar
+LD TR1
+AND=S(302) V5_cbSciclodosificacion &0
+MOV(021) &0 V5_cbEordenabortar
+LD TR0
+AND crEvisor6activo
+OUT TR1
+MOV(021) &0 V6_cbEordendescargar
+MOV(021) &0 V6_cbEordendosificar
+AND=S(302) V6_cbSciclodosificacion &1
+MOV(021) &1 V6_cbEordenabortar
+LD TR1
+AND=S(302) V6_cbSciclodosificacion &0
+MOV(021) &0 V6_cbEordenabortar
+LD TR0
+AND crEvisor7activo
+OUT TR0
+MOV(021) &0 V7_cbEordendescargar
+MOV(021) &0 V7_cbEordendosificar
+AND=S(302) V7_cbSciclodosificacion &1
+MOV(021) &1 V7_cbEordenabortar
+LD TR0
+AND=S(302) V7_cbSciclodosificacion &0
+MOV(021) &0 V7_cbEordenabortar
+LD CR_GRAFOCARGA
+RSET crAUXactuavisor1
+//  Comprovamos productos finalizados y actualizamos su estado en estructura
+RSET crAUXactuavisor2
+RSET crAUXactuavisor3
+RSET crAUXactuavisor4
+RSET crAUXactuavisor5
+RSET crAUXactuavisor6
+RSET crAUXactuavisor7
+MOV(021) &0 crAUXoffset
+MOV(021) &0 crAUXoffset2
+FOR(512) &12
+LD CR_GRAFOCARGA
+COLL(081) crSbasedosificado crAUXoffset crAUXestadoproducto
+MOVR(560) crSbasecantidadreal IR0
+//  H364 és base de cantidad real
++L(401) IR0 crAUXoffset2 IR0
+AND=S(302) &1 crAUXestadoproducto
+OUT TR0
+COLL(081) crSbasevisorproducto crAUXoffset crAUXvisordosificacionproducto2
+AND=S(302) crAUXvisordosificacionproducto2 &1
+MOVL(498) V1_cbSpesodosificado ,IR0
+AND<>S(307) V1_cbSciclodosificacion &1
+DIST(080) &2 crSbasedosificado crAUXoffset
+//  Indicamos que el producto ya ha sido dosificado
+MOV(021) &0 V1_cbEordendosificar
+//  Quitamos la orden de dosificacion
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto2 &2
+MOVL(498) V2_cbSpesodosificado ,IR0
+AND<>S(307) V2_cbSciclodosificacion &1
+DIST(080) &2 crSbasedosificado crAUXoffset
+//  Indicamos que el producto ya ha sido dosificado
+MOV(021) &0 V2_cbEordendosificar
+//  Quitamos la orden de dosificacion
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto2 &3
+MOVL(498) V3_cbSpesodosificado ,IR0
+AND<>S(307) V3_cbSciclodosificacion &1
+DIST(080) &2 crSbasedosificado crAUXoffset
+//  Indicamos que el producto ya ha sido dosificado
+MOV(021) &0 V3_cbEordendosificar
+//  Quitamos la orden de dosificacion
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto2 &4
+MOVL(498) V4_cbSpesodosificado ,IR0
+AND<>S(307) V4_cbSciclodosificacion &1
+DIST(080) &2 crSbasedosificado crAUXoffset
+//  Indicamos que el producto ya ha sido dosificado
+MOV(021) &0 V4_cbEordendosificar
+//  Quitamos la orden de dosificacion
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto2 &5
+MOVL(498) V5_cbSpesodosificado ,IR0
+AND<>S(307) V5_cbSciclodosificacion &1
+DIST(080) &2 crSbasedosificado crAUXoffset
+//  Indicamos que el producto ya ha sido dosificado
+MOV(021) &0 V5_cbEordendosificar
+//  Quitamos la orden de dosificacion
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto2 &6
+MOVL(498) V6_cbSpesodosificado ,IR0
+AND<>S(307) V6_cbSciclodosificacion &1
+DIST(080) &2 crSbasedosificado crAUXoffset
+//  Indicamos que el producto ya ha sido dosificado
+MOV(021) &0 V6_cbEordendosificar
+//  Quitamos la orden de dosificacion
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto2 &7
+MOVL(498) V7_cbSpesodosificado ,IR0
+AND<>S(307) V7_cbSciclodosificacion &1
+DIST(080) &2 crSbasedosificado crAUXoffset
+//  Indicamos que el producto ya ha sido dosificado
+MOV(021) &0 V7_cbEordendosificar
+//  Quitamos la orden de dosificacion
+LD CR_GRAFOCARGA
+++(590) crAUXoffset
++L(401) crAUXoffset2 &2 crAUXoffset2
+NEXT(513)
+LD CR_GRAFOCARGA
+//  Actualizamos los productos que se estan dosificando
+MOV(021) &0 crSproductovisor1
+MOV(021) &0 crSproductovisor2
+MOV(021) &0 crSproductovisor3
+MOV(021) &0 crSproductovisor4
+MOV(021) &0 crSproductovisor5
+MOV(021) &0 crSproductovisor6
+MOV(021) &0 crSproductovisor7
+MOV(021) &0 crAUXoffset
+FOR(512) &12
+LD CR_GRAFOCARGA
+OUT TR0
+COLL(081) crSbasevisorproducto crAUXoffset crAUXvisordosificacionproducto3
+COLL(081) crSbasedosificado crAUXoffset crAUXestadoproducto1
+COLL(081) crSbasecodigoproducto crAUXoffset crAUXcodigoproducto
+AND=S(302) crAUXvisordosificacionproducto3 &1
+AND crEvisor1activo
+OUT TR1
+AND=S(302) crAUXestadoproducto1 &1
+SET crAUXactuavisor1
+MOV(021) crAUXcodigoproducto crSproductovisor1
+LD TR1
+ANDNOT crAUXactuavisor1
+AND=S(302) crAUXestadoproducto1 &0
+SET crAUXactuavisor1
+MOV(021) crAUXcodigoproducto crSproductovisor1
+DIST(080) &1 crSbasedosificado crAUXoffset
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto3 &2
+AND crEvisor2activo
+OUT TR1
+AND=S(302) crAUXestadoproducto1 &1
+SET crAUXactuavisor2
+MOV(021) crAUXcodigoproducto crSproductovisor2
+LD TR1
+ANDNOT crAUXactuavisor2
+AND=S(302) crAUXestadoproducto1 &0
+SET crAUXactuavisor2
+MOV(021) crAUXcodigoproducto crSproductovisor2
+DIST(080) &1 crSbasedosificado crAUXoffset
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto3 &3
+AND crEvisor3activo
+OUT TR1
+AND=S(302) crAUXestadoproducto1 &1
+SET crAUXactuavisor3
+MOV(021) crAUXcodigoproducto crSproductovisor3
+LD TR1
+ANDNOT crAUXactuavisor3
+AND=S(302) crAUXestadoproducto1 &0
+SET crAUXactuavisor3
+MOV(021) crAUXcodigoproducto crSproductovisor3
+DIST(080) &1 crSbasedosificado crAUXoffset
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto3 &4
+AND crEvisor4activo
+OUT TR1
+AND=S(302) crAUXestadoproducto1 &1
+SET crAUXactuavisor4
+MOV(021) crAUXcodigoproducto crSproductovisor4
+LD TR1
+ANDNOT crAUXactuavisor4
+AND=S(302) crAUXestadoproducto1 &0
+SET crAUXactuavisor4
+MOV(021) crAUXcodigoproducto crSproductovisor4
+DIST(080) &1 crSbasedosificado crAUXoffset
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto3 &5
+AND crEvisor5activo
+OUT TR1
+AND=S(302) crAUXestadoproducto1 &1
+SET crAUXactuavisor5
+MOV(021) crAUXcodigoproducto crSproductovisor5
+LD TR1
+ANDNOT crAUXactuavisor5
+AND=S(302) crAUXestadoproducto1 &0
+SET crAUXactuavisor5
+MOV(021) crAUXcodigoproducto crSproductovisor5
+DIST(080) &1 crSbasedosificado crAUXoffset
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto3 &6
+AND crEvisor6activo
+OUT TR1
+AND=S(302) crAUXestadoproducto1 &1
+SET crAUXactuavisor6
+MOV(021) crAUXcodigoproducto crSproductovisor6
+LD TR1
+ANDNOT crAUXactuavisor6
+AND=S(302) crAUXestadoproducto1 &0
+SET crAUXactuavisor6
+MOV(021) crAUXcodigoproducto crSproductovisor6
+DIST(080) &1 crSbasedosificado crAUXoffset
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto3 &7
+AND crEvisor7activo
+OUT TR1
+AND=S(302) crAUXestadoproducto1 &1
+SET crAUXactuavisor7
+MOV(021) crAUXcodigoproducto crSproductovisor7
+LD TR1
+ANDNOT crAUXactuavisor7
+AND=S(302) crAUXestadoproducto1 &0
+SET crAUXactuavisor7
+MOV(021) crAUXcodigoproducto crSproductovisor7
+DIST(080) &1 crSbasedosificado crAUXoffset
+LD TR0
+++(590) crAUXoffset
+NEXT(513)
+LD CR_GRAFOCARGA
+//  Damos las ordenes de dosificación a los visores correspondientes
+MOV(021) &0 crAUXoffset
+MOVL(498) &0 crAUXoffset2
+FOR(512) &12
+LD CR_GRAFOCARGA
+COLL(081) crSbasedosificado crAUXoffset crAUXestadoproducto2
+AND=S(302) crAUXestadoproducto2 &1
+OUT TR0
+COLL(081) crSbasecodigoproducto crAUXoffset crAUXoffset3
+-(410) crAUXoffset3 &1 crAUXoffset3
+MOV(021) crEdireccionbasecolas crAUXindireccionesD
++(400) crAUXindireccionesD crAUXoffset3 crAUXindireccionesD
++(400) crAUXindireccionesD crAUXoffset3 crAUXindireccionesD
+MOVL(498) @crAUXindireccionesD crAUXcola
+MOV(021) crEdireccionbaseerrormaximo crAUXindireccionesD
++(400) crAUXindireccionesD crAUXoffset3 crAUXindireccionesD
++(400) crAUXindireccionesD crAUXoffset3 crAUXindireccionesD
+MOVL(498) @crAUXindireccionesD crAUXerrormaximo
+MOV(021) crEdireccionbaselento crAUXindireccionesD
++(400) crAUXindireccionesD crAUXoffset3 crAUXindireccionesD
++(400) crAUXindireccionesD crAUXoffset3 crAUXindireccionesD
+MOVL(498) @crAUXindireccionesD crAUXlento
+COLL(081) crSbasevisorproducto crAUXoffset crAUXvisordosificacionproducto4
+MOVR(560) crSbasecantidadteorica IR0
++L(401) IR0 crAUXoffset2 IR0
+MOVL(498) ,IR0 crAUXpesoteorico1
+AND=S(302) crAUXvisordosificacionproducto4 &1
+MOVL(498) crAUXpesoteorico1 V1_cbEconsigna
+MOVL(498) crAUXcola V1_cbEcola
+MOVL(498) crAUXlento V1_cbElento
+MOVL(498) crAUXerrormaximo V1_cbEerrormaximo
+MOV(021) &1 V1_cbEordendosificar
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto4 &2
+MOV(021) crAUXpesoteorico1 V2_cbEconsigna
+MOVL(498) crAUXcola V2_cbEcola
+MOVL(498) crAUXlento V2_cbElento
+MOVL(498) crAUXerrormaximo V2_cbEerrormaximo
+MOV(021) &1 V2_cbEordendosificar
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto4 &3
+MOV(021) crAUXpesoteorico1 V3_cbEconsigna
+MOVL(498) crAUXcola V3_cbEcola
+MOVL(498) crAUXlento V3_cbElento
+MOVL(498) crAUXerrormaximo V3_cbEerrormaximo
+MOV(021) &1 V3_cbEordendosificar
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto4 &4
+MOV(021) crAUXpesoteorico1 V4_cbEconsigna
+MOVL(498) crAUXcola V4_cbEcola
+MOVL(498) crAUXlento V4_cbElento
+MOVL(498) crAUXerrormaximo V4_cbEerrormaximo
+MOV(021) &1 V4_cbEordendosificar
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto4 &5
+MOV(021) crAUXpesoteorico1 V5_cbEconsigna
+MOVL(498) crAUXcola V5_cbEcola
+MOVL(498) crAUXlento V5_cbElento
+MOVL(498) crAUXerrormaximo V5_cbEerrormaximo
+MOV(021) &1 V5_cbEordendosificar
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto4 &6
+MOV(021) crAUXpesoteorico1 V6_cbEconsigna
+MOVL(498) crAUXcola V6_cbEcola
+MOVL(498) crAUXerrormaximo V6_cbEerrormaximo
+MOV(021) &1 V6_cbEordendosificar
+LD TR0
+AND=S(302) crAUXvisordosificacionproducto4 &7
+MOV(021) crAUXpesoteorico1 V7_cbEconsigna
+MOVL(498) crAUXcola V7_cbEcola
+MOVL(498) crAUXerrormaximo V7_cbEerrormaximo
+MOV(021) &1 V7_cbEordendosificar
+LD CR_GRAFOCARGA
+++(590) crAUXoffset
++L(401) crAUXoffset2 &2 crAUXoffset2
+NEXT(513)
+LD CR_GRAFOCARGA
+//  Calculamos si la receta en curso ya esta completamente cargada
+MOV(021) &0 crAUXoffset
+SET crSrecetacargada
+//  Hasta que no se demuestre lo contrario la receta esta cargada
+FOR(512) &12
+LD CR_GRAFOCARGA
+OUT TR0
+COLL(081) crSbasevisorproducto crAUXoffset crAUXvisordosificacionproducto6
+COLL(081) crSbasedosificado crAUXoffset crAUXestadoproducto3
+LD=S(302) crAUXvisordosificacionproducto6 &1
+AND crAUXvisor1interviene
+LD=S(302) crAUXvisordosificacionproducto6 &2
+AND crAUXvisor2interviene
+ORLD
+LD=S(302) crAUXvisordosificacionproducto6 &3
+AND crAUXvisor3interviene
+ORLD
+LD=S(302) crAUXvisordosificacionproducto6 &4
+AND crAUXvisor4interviene
+ORLD
+LD=S(302) crAUXvisordosificacionproducto6 &5
+AND crAUXvisor5interviene
+ORLD
+LD=S(302) crAUXvisordosificacionproducto6 &6
+AND crAUXvisor6interviene
+ORLD
+LD=S(302) crAUXvisordosificacionproducto6 &7
+AND crAUXvisor7interviene
+ORLD
+ANDLD
+AND<>S(307) crAUXestadoproducto3 &2
+RSET crSrecetacargada
+LD TR0
+++(590) crAUXoffset
+NEXT(513)
+LD CR_GRAFODESCARGA
+OUT TR0
+AND=S(302) V1_cbSciclodosificacion &0
+ANDNOT crAUXtransicionadescarga
+SET crAUXfinaldescargavisor1
+LD TR0
+AND=S(302) V2_cbSciclodosificacion &0
+ANDNOT crAUXtransicionadescarga
+SET crAUXfinaldescargavisor2
+LD TR0
+AND=S(302) V3_cbSciclodosificacion &0
+ANDNOT crAUXtransicionadescarga
+SET crAUXfinaldescargavisor3
+LD TR0
+AND=S(302) V4_cbSciclodosificacion &0
+ANDNOT crAUXtransicionadescarga
+SET crAUXfinaldescargavisor4
+LD TR0
+AND=S(302) V5_cbSciclodosificacion &0
+ANDNOT crAUXtransicionadescarga
+SET crAUXfinaldescargavisor5
+LD TR0
+RSET crAUXtransicionadescarga
+LD CR_GRAFODESCARGA
+OUT TR0
+AND crAUXvisor1interviene
+OUT TR1
+LDNOT crEordendescargavisor1
+OR crAUXfinaldescargavisor1
+ANDLD
+MOV(021) &0 V1_cbEordendescargar
+LD TR1
+AND crEordendescargavisor1
+ANDNOT crAUXfinaldescargavisor1
+MOV(021) &1 V1_cbEordendescargar
+LD TR0
+AND crAUXvisor2interviene
+OUT TR1
+LDNOT crEordendescargavisor2
+OR crAUXfinaldescargavisor2
+ANDLD
+MOV(021) &0 V2_cbEordendescargar
+LD TR1
+AND crEordendescargavisor2
+ANDNOT crAUXfinaldescargavisor2
+MOV(021) &1 V2_cbEordendescargar
+LD TR0
+AND crAUXvisor3interviene
+OUT TR1
+LDNOT crEordendescargavisor3
+OR crAUXfinaldescargavisor3
+ANDLD
+MOV(021) &0 V3_cbEordendescargar
+LD TR1
+AND crEordendescargavisor3
+ANDNOT crAUXfinaldescargavisor3
+MOV(021) &1 V3_cbEordendescargar
+LD TR0
+AND crAUXvisor4interviene
+OUT TR1
+LDNOT crEordendescargavisor4
+OR crAUXfinaldescargavisor4
+ANDLD
+MOV(021) &0 V4_cbEordendescargar
+LD TR1
+AND crEordendescargavisor4
+ANDNOT crAUXfinaldescargavisor4
+MOV(021) &1 V4_cbEordendescargar
+LD TR0
+AND crAUXvisor5interviene
+OUT TR0
+LDNOT crEordendescargavisor5
+OR crAUXfinaldescargavisor5
+ANDLD
+MOV(021) &0 V5_cbEordendescargar
+LD TR0
+AND crEordendescargavisor5
+ANDNOT crAUXfinaldescargavisor5
+MOV(021) &1 V5_cbEordendescargar
+LD CR_GRAFOTRANSICIONSALIDADESCARGA
+MOV(021) &0 V1_cbEordendescargar
+MOV(021) &0 V2_cbEordendescargar
+MOV(021) &0 V3_cbEordendescargar
+MOV(021) &0 V4_cbEordendescargar
+MOV(021) &0 V5_cbEordendescargar
+RSET CR_GRAFOTRANSICIONSALIDADESCARGA
+RET(093)

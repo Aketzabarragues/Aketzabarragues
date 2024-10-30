@@ -1,0 +1,158 @@
+'  ALARMAS ZONA CARGA SILOS 9 Y 10
+LDNOT I_GASILO9
+//  Sobrepresión silo 9
+SET A_MZCS_SOBREPRESION_S9
+LD cierto
+AND>=S(327) 2032 &120
+OUT TR0
+AND P_Off
+TIM 0500 #10
+LD TR0
+SET W10.00
+LD T0500
+ORNOT NIVEL_S10
+SET A_MZCS_SOBREPRESION_S10
+LD=(300) V6_cbSsuperadoPMA &1
+//  Superado PMA del silo 9
+OUT A_MZCS_SUPERADO_PMA_S9
+LD=(300) V7_cbSsuperadoPMA &1
+//  Superado PMA del silo 10
+OUT A_MZCS_SUPERADO_PMA_S10
+LDNOT 6.03
+SET W463.05
+'  CERRAR VDE9 SI HAY SOBREPRESION O SUPERACION PMA SILO 9
+LD A_MZCS_SOBREPRESION_S9
+//  Alarma Sobrepresión silo 9
+OR A_MZCS_SUPERADO_PMA_S9
+//  Alarma Superado PMA silo 9
+OUT O_ECVDE9
+'  CERRAR VDE10 SI HAY SOBREPRESION O SUPERACION PMA SILO 10
+LD A_MZCS_SOBREPRESION_S10
+//  Alarma Sobrepresión Silo 10
+OR A_MZCS_SUPERADO_PMA_S10
+//  Alarma Superado PMA silo 10
+OR W463.05
+OUT O_ECVDE10
+'  RESET ALARMA SILOS 9 Y 10
+LD I_PGRESETSILOS
+//  Pulsador reset alarma Silos 9 y 10 (mantener pulsado durante 5 segundos para efectuar reset)
+TIM 1800 #20
+LD TIM_MZCS_RESETSILOS
+//  Reset alarma silos 9 y 10
+RSET A_MZCS_SOBREPRESION_S9
+RSET W463.05
+LD cierto
+AND<S(312) 2032 &85
+RSET A_MZCS_SOBREPRESION_S10
+'  Activacion filtros por tapa tuberia carga abierta
+LD 5.15
+OR C1811
+OUT 12.07
+TIM 1812 #600
+'  Temporizador para limpieza de filtros silo 10
+LD cierto
+ANDNOT P_1min
+LD T1812
+CNT 1811 #120
+LD O_ECVDBT1
+OUT 200.00
+'  Control de pesos en silo 1, para visualizar cantidad en pantalla
+LD cierto
+AND 200.02
+MOVL(498) Peso_bruto_silo1 Resultado_resta_silo1
+'  Mantenemos el  Keep a 1, hasta que hacemos la resta, del peso cargado en bascula, silo 1
+LD MHSC2_PET_CargaS1aBT1_AUT
+LD O_EAVMBT1
+KEEP(011) 200.09
+'  Resta el valor cargado en la tolva al d1004, Silo 1
+LD 200.09
+%AND 200.00
+ANDNOT 64.00
+-L(411) Resultado_resta_silo1 V1_cbSpesobruto Resultado_resta_silo1
+'  Contador masas Silo 1
+@LD MHSC2_PET_CargaS1aBT1_AUT
+LD 200.06
+OUT TR0
+LD TR0
+CNTR(012) 0001 #999
+'  Silo 1. Bloquea la resta cuando en el silo solo quedan 500kg, Manteniendo en pantalla en el Neto una cantidad de 50Kg
+LD cierto
+AND<L(311) Resultado_resta_silo1 &5000
+MOVL(498) &500 Resultado_resta_silo1
+LD 200.02
+KEEP(011) 64.00
+'  Control de pesos en silo 3, para visualizar cantidad en pantalla
+LD cierto
+AND 200.03
+MOVL(498) Peso_bruto_silo3 Resultado_resta_silo3
+'  Mantenemos el  Keep a 1, hasta que hacemos la resta, del peso cargado en bascula, silo 3
+LD MHSC2_PET_CargaS3aBT1_AUT
+LD O_EAVMBT1
+KEEP(011) 200.10
+'  Resta el valor cargado en la tolva al d1020, Silo 3 integral
+LD 200.10
+%AND 200.00
+ANDNOT 64.01
+-L(411) Resultado_resta_silo3 V1_cbSpesobruto Resultado_resta_silo3
+'  Contador masas Silo 3
+@LD MHSC2_PET_CargaS3aBT1_AUT
+LD 200.07
+OUT TR0
+LD TR0
+CNTR(012) 0002 #999
+'  Silo 3. Bloquea la resta cuando en el silo solo quedan 500kg, Manteniendo en pantalla en el Neto una cantidad de 50Kg
+LD cierto
+AND<L(311) Resultado_resta_silo3 &5000
+MOVL(498) &500 Resultado_resta_silo3
+LD 200.03
+KEEP(011) 64.01
+'  Control de pesos en silo 4, para visualizar cantidad en pantalla
+LD cierto
+AND 200.04
+MOVL(498) Peso_bruto_silo4 Resultado_resta_silo4
+'  Mantenemos el  Keep a 1, hasta que hacemos la resta, del peso cargado en bascula, silo 4
+LD MHSC2_PET_CargaS4aBT1_AUT
+LD O_EAVMBT1
+KEEP(011) 200.11
+'  Resta el valor cargado en la tolva al d1020, Silo 4
+LD 200.11
+%AND 200.00
+ANDNOT 64.02
+-L(411) Resultado_resta_silo4 V1_cbSpesobruto Resultado_resta_silo4
+'  Contador masas Silo 4
+@LD MHSC2_PET_CargaS4aBT1_AUT
+LD 200.08
+OUT TR0
+LD TR0
+CNTR(012) 0003 #999
+'  Silo 4. Bloquea la resta cuando en el silo solo quedan 500kg, Manteniendo en pantalla en el Neto esta cantidad de 50kg
+LD cierto
+AND<L(311) Resultado_resta_silo4 &5000
+MOVL(498) &500 Resultado_resta_silo4
+LD 200.04
+KEEP(011) 64.02
+'  Control de pesos en silo 5, para visualizar cantidad en pantalla
+LD cierto
+AND 200.05
+MOVL(498) Peso_bruto_silo5 Resultado_resta_silo5
+'  Mantenemos el  Keep a 1, hasta que hacemos la resta, del peso cargado en bascula, silo 5
+LD MHSC2_PET_CargaS5aBT1_AUT
+LD O_EAVMBT1
+KEEP(011) 200.12
+'  Resta el valor cargado en la tolva al d1020, Silo 5
+LD 200.12
+%AND 200.00
+ANDNOT 64.03
+-L(411) Resultado_resta_silo5 V1_cbSpesobruto Resultado_resta_silo5
+'  Contador masas Silo 5
+@LD MHSC2_PET_CargaS5aBT1_AUT
+LD 200.13
+OUT TR0
+LD TR0
+CNTR(012) 0004 #999
+'  Silo 5. Bloquea la resta cuando en el silo solo quedan 500kg, Manteniendo en pantalla en el Neto esta cantidad de 50kg
+LD cierto
+AND<L(311) Resultado_resta_silo5 &5000
+MOVL(498) &500 Resultado_resta_silo5
+LD 200.05
+KEEP(011) 64.03

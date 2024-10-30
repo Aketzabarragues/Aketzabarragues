@@ -1,0 +1,64 @@
+LD INICIA_CONTROLRECETAV1V3V5
+BSET(071) &0 D2200 D2399
+//  Reseteamos toda la zona de trabajo de CONTROL RECETA
+MOV(021) &1 P1_crEnumeroreceta
+MOV(021) &1 P1_crEvisor1activo
+//  Interviene el visor de HARINAS
+MOV(021) &1 P1_crEvisor3activo
+//  Interviene el visor de AZUCAR
+MOV(021) &1 P1_crEvisor5activo
+//  Interviene el visor del INGREDIADOR
+MOV(021) &1 P1_crEcomprovarbasculavacia
+//  No deseamos comprovación de báscula vacia antes de iniciar receta
+MOV(021) &3000 P1_crEdireccionrecetario
+//  RECETARIO: Indicamos dirección del recetario
+MOV(021) &3800 P1_crEdireccionproductovisor
+//  TABLA PRODUCTOS VISOR: Indicamos su dirección en memoria
+MOV(021) &3840 P1_crEdireccioncolas
+//  TABLA COLAS: Indicamos su dirección en memoria
+MOV(021) &3880 P1_crEdireccionlento
+//  TABLA LENTOS: Indicamos su dirección en memoria
+MOV(021) &3920 P1_crEdireccionerrormaximo
+//  TABLA ERRORE MAXIMOS: Indicamos su dirección en memoria
+BSET(071) &0 D3000 D3999
+//  TABLA RECETARIO, PRODUCTOS VISOR, TABLA COLAS, LENTOS Y ERRORES MÁXIMOS: Reseteamos
+MOV(021) &1 D3800
+//  TABLA PRODUCTOS VISOR: El producto 1 de dosifica en visor 1
+MOV(021) &1 D3801
+//  TABLA PRODUCTOS VISOR: El producto 2 de dosifica en visor 1
+MOV(021) &1 D3802
+//  TABLA PRODUCTOS VISOR: El producto 3 de dosifica en visor 1
+MOV(021) &3 D3803
+//  TABLA PRODUCTOS VISOR: El producto 4 de dosifica en visor 3
+MOV(021) &3 D3804
+//  TABLA PRODUCTOS VISOR: El producto 5 de dosifica en visor 3
+MOV(021) &3 D3805
+//  TABLA PRODUCTOS VISOR: El producto 6 de dosifica en visor 3
+MOV(021) &5 D3806
+//  TABLA PRODUCTOS VISOR: El producto 7 de dosifica en visor5
+RSET INICIA_CONTROLRECETAV1V3V5
+LD INICIA_CONTROLRECETAV2
+BSET(071) &0 D2400 D2599
+//  Reseteamos toda la zona de trabajo de CONTROL RECETA
+MOV(021) &1 P2_crEnumeroreceta
+MOV(021) &1 P2_crEvisor2activo
+//  Interviene el visor de BOLLERIA SOLIDOS
+MOV(021) &1 P2_crEcomprovarbasculavacia
+//  No deseamos comprovación de báscula vacia antes de iniciar receta
+MOV(021) &4000 P2_crEdireccionrecetario
+//  RECETARIO: Indicamos dirección del recetario
+MOV(021) &4800 P2_crEdireccionproductovisor
+//  TABLA PRODUCTOS VISOR: Indicamos su dirección en memoria
+MOV(021) &4840 P2_crEdireccioncolas
+//  TABLA COLAS: Indicamos su dirección en memoria
+MOV(021) &4880 P2_crEdireccionlento
+//  TABLA LENTOS: Indicamos su dirección en memoria
+MOV(021) &4920 P2_crEdireccionerrormaximo
+//  TABLAERRORES MAXIMOS: Indicamos su dirección en memoria
+BSET(071) &0 D4000 D4999
+//  TABLA PRODUCTOS VISOR, RECETARIO, COLAS, LENTOS I ERRORES MÁXIMOS: Reseteamos
+MOV(021) &2 D4807
+//  TABLA PRODUCTOS VISOR: El producto 8 de dosifica en visor 2
+MOV(021) &2 D4808
+//  TABLA PRODUCTOS VISOR: El producto 9 de dosifica en visor2
+RSET INICIA_CONTROLRECETAV2

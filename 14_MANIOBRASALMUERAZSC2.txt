@@ -1,0 +1,65 @@
+'  PETICION CARGA SALMUERA EN AUTOMATICO
+LD=S(302) V8_cbScargaproducto &1
+//  Petición carga aceite en Visor 4 AUTOMATICO
+OUT MASC2_PET_CargaSALMORRA_AUT
+'  DISCRIMINACIÓN AUTOMÁTICO/MANUAL ZONA ACEITE MANIOBRA ACEITE
+LD MASC2_PET_CargaSALMORRA_AUT
+//  Petición carga ACEITE AUTOMATICO
+AND=(300) ZS_ESTADO_INSTALACION &2
+LD VIR_I_PGCARGASALMUERA
+//  Petición carga ACEITE MANUAL (pulsador virtual)
+AND=(300) ZS_ESTADO_INSTALACION &1
+ORLD
+OUT MASC2_PET_CargaSALMORRA_CAM
+'  MANIOBRA CARGA ACEITE ZONA ACEITE
+LD MASC2_PET_CargaSALMORRA_CAM
+ANDNOT H11.15
+OUT O_EASALMUERA
+LD MASC2_PET_CargaSALMORRA_CAM
+//  Funciona carga aceite
+AND O_EASALMUERA
+ANDNOT I_FCSALMUERA
+OUT MASC2_FUN_CargaSALMUERA
+@LD C0402
+LD 210.00
+KEEP(011) H11.15
+'  Contador que nos cortara la ev de salmuera
+LD O_EASALMUERA
+AND P_1s
+LDNOT O_EASALMUERA
+CNT 0402 D11529
+'  Contador para calcular los litros que hecha  por tiempo, y visualizar en la pantalla
+@LD P_1s
+AND O_EASALMUERA
+++(590) D11530
+'  Despues de hacer la descarga pone a cero e ldm11530. Para reiniciar el calculo de litros salmuera.
+LD cierto
+@AND EVdescsolid
+MOV(021) &0 D11530
+'  Atraves del DM 11531 le ponemos un valor para el factor de multiplicación que son los litros por segundo 0,29L/seg. DM11531 = 29
+LD cierto
+*(420) D11530 D11531 D11532
+'  Convierte de binario a bcd, para poner en el contador de seguridad un valor traducido a segundos
+LD cierto
+BCD(024) Tiempo_seguridad D11529
+'  Temporizador de seguridad, para cortar la válvula de carga de salmuera. Factor de multiplicacion segundos por litro 3,7. DM11522 = 37
+LD cierto
+/L(431) Tiempo_seguridad_ev_salmuera D11520 Tiempo_seguridad
+*L(421) GESPAN_TeoricoSalmueraCurso D11522 Tiempo_seguridad_ev_salmuera
+'  ALARMAS MASC2
+LD O_EASALMUERA
+//  Válvula aceite no abre
+AND I_FCSALMUERA
+TIM 2503 #50
+LD TIM_A_MASC2_O_EASALMUERA_C
+OUT A_MASC2_O_EASALMUERA_C
+LDNOT O_EASALMUERA
+//  Válvula aceite no cierra
+ANDNOT I_FCSALMUERA
+TIM 2504 #50
+LD TIM_A_MASC2_N_O_EASALMUERA_A
+OUT A_MASC2_N_O_EASALMUERA_A
+'  Simulacion del FC
+LDNOT O_EASALMUERA
+//  Válvula aceite no abre
+OUT I_FCSALMUERA
